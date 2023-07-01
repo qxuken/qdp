@@ -1,0 +1,21 @@
+version: '2'
+
+services:
+  postgresql:
+    image: 'bitnami/postgresql:latest'
+    networks:
+      - db
+    ports:
+      - 5432:5432
+    volumes:
+      - pg-storage:/bitnami/postgresql
+    environment:
+      - POSTGRESQL_USERNAME=qdp
+      - POSTGRESQL_PASSWORD=qdp
+      - POSTGRESQL_DATABASE=qdp
+
+volumes:
+  pg-storage:
+
+networks:
+  db:

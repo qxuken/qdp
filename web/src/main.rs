@@ -20,14 +20,16 @@ async fn main() -> std::io::Result<()> {
         .parse()
         .expect("PORT must be a number");
 
+
     log::info!("Starting on: {}:{:?}", host, port);
 
     HttpServer::new(move || {
+        let frontend_path = env::var("FRONTEND_PATH").ok();
         App::new()
             .wrap(Logger::default().log_target("app"))
             .service(health)
             .service(api::create_service("/api"))
-            .service(frontend::create_service("/"))
+            .service(frontend::create_service("/", frontend_path))
     })
     .bind((host, port))?
     .run()

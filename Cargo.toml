@@ -1,2 +1,2 @@
 [workspace]
-members = ["frontend", "web", "api"]
+members = ["frontend", "web", "api", "database"]
