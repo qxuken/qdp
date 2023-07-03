@@ -5,6 +5,7 @@ diesel::table! {
         id -> Integer,
         title -> Text,
         link -> Text,
+        order_number -> Integer,
         link_section_id -> Integer,
     }
 }
@@ -13,6 +14,7 @@ diesel::table! {
     link_section (id) {
         id -> Integer,
         title -> Text,
+        order_number -> Integer,
     }
 }
 

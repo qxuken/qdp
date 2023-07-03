@@ -1,11 +1,12 @@
-use actix_web::{get, web, Scope, HttpResponse, Responder};
+mod routes;
 
-#[get("/test")]
-async fn test() -> impl Responder {
-    HttpResponse::Ok().body("Ok!")
-}
+use actix_web::{web, Scope};
 
 pub fn create_service(path: &'static str) -> Scope {
+    let pool = database::initialize_db_pool();
+
     web::scope(path)
-        .service(test)
+        .app_data(web::Data::new(pool.clone()))
+        .service(routes::health::get_scope())
+        .service(routes::links::get_scope())
 }

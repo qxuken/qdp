@@ -1,12 +1,7 @@
-use actix_web::{get, middleware::Logger, App, HttpResponse, HttpServer, Responder};
+use actix_web::{middleware::Logger, App, HttpServer};
 use dotenv::dotenv;
 use env_logger::Env;
 use std::env;
-
-#[get("/health")]
-async fn health() -> impl Responder {
-    HttpResponse::Ok().body("Ok!")
-}
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
@@ -20,14 +15,12 @@ async fn main() -> std::io::Result<()> {
         .parse()
         .expect("PORT must be a number");
 
-
     log::info!("Starting on: {}:{:?}", host, port);
 
     HttpServer::new(move || {
         let frontend_path = env::var("FRONTEND_PATH").ok();
         App::new()
             .wrap(Logger::default().log_target("app"))
-            .service(health)
             .service(api::create_service("/api"))
             .service(frontend::create_service("/", frontend_path))
     })
