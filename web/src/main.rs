@@ -1,3 +1,4 @@
+use actix_cors::Cors;
 use actix_web::{middleware::Logger, App, HttpServer};
 use dotenv::dotenv;
 use env_logger::Env;
@@ -19,8 +20,13 @@ async fn main() -> std::io::Result<()> {
 
     HttpServer::new(move || {
         let frontend_path = env::var("FRONTEND_PATH").ok();
+        let mut cors = Cors::default().max_age(3600);
+        if let Some(_) = env::var("CORS_DISABLED").ok() {
+            cors = Cors::permissive();
+        }
         App::new()
             .wrap(Logger::default().log_target("app"))
+            .wrap(cors)
             .service(api::create_service("/api"))
             .service(frontend::create_service("/", frontend_path))
     })
