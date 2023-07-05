@@ -1,0 +1,21 @@
+---
+---
+
+<div>
+  <div id="links" class="p-4"></div>
+</div>
+<script>
+  import { fromEvent, tap, map } from 'rxjs';
+
+  fromEvent(window, 'load')
+    .pipe(
+      map(() => document.querySelector('#links')),
+      tap((linksEl) => {
+        let sectionEl = document.createElement('link-section');
+        // @ts-ignore
+        sectionEl.hello = 'text';
+        linksEl?.appendChild(sectionEl);
+      }),
+    )
+    .subscribe((data) => console.log('emission', data));
+</script>
