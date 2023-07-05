@@ -1,21 +1,17 @@
-version: '2'
+version: '3'
 
 services:
-  postgresql:
-    image: 'bitnami/postgresql:latest'
-    networks:
-      - db
+  web:
+    image: qdp/web
+    build:
+      context: .
+      dockerfile: ./Dockerfile
     ports:
-      - 5432:5432
+      - 8080:8080
     volumes:
-      - pg-storage:/bitnami/postgresql
+      - web-data:/data
     environment:
-      - POSTGRESQL_USERNAME=qdp
-      - POSTGRESQL_PASSWORD=qdp
-      - POSTGRESQL_DATABASE=qdp
+      - RUST_LOG=trace
 
 volumes:
-  pg-storage:
-
-networks:
-  db:
+  web-data:
