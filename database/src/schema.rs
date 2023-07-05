@@ -4,6 +4,7 @@ diesel::table! {
     link_item (id) {
         id -> Integer,
         title -> Text,
+        description -> Nullable<Text>,
         link -> Text,
         order_number -> Integer,
         link_section_id -> Integer,

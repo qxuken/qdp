@@ -39,14 +39,33 @@ async fn update_section(
     let data = web::block(move || {
         let mut conn = pool.get()?;
 
-        links::find_link_section(&mut conn, &*path)?;
+        links::find_link_section(&mut conn, &path)?;
 
-        links::update_link_section(&mut conn, *path, data.into_inner())
+        links::update_link_section(&mut conn, &path, data.into_inner())
     })
     .await?
     .map_err(error::ErrorBadRequest)?;
 
     Ok(HttpResponse::Ok().json(data))
+}
+
+#[put("/section/{id}/reorder")]
+async fn reorder_section(
+    pool: web::Data<database::DatabasePool>,
+    path: web::Path<i32>,
+    data: web::Json<links::LinkReorderItem>,
+) -> Result<impl Responder> {
+    web::block(move || {
+        let mut conn = pool.get()?;
+
+        links::find_link_section(&mut conn, &path)?;
+
+        links::reorder_link_section(&mut conn, &path, &data.new_order_number)
+    })
+    .await?
+    .map_err(error::ErrorBadRequest)?;
+
+    Ok(HttpResponse::NoContent())
 }
 
 #[delete("/section/{id}")]
@@ -57,7 +76,7 @@ async fn delete_section(
     web::block(move || {
         let mut conn = pool.get()?;
 
-        links::find_link_section(&mut conn, &*path)?;
+        links::find_link_section(&mut conn, &path)?;
 
         links::delete_link_section(&mut conn, *path)
     })
@@ -72,7 +91,7 @@ async fn create_item(
     pool: web::Data<database::DatabasePool>,
     data: web::Json<links::NewLinkItem>,
 ) -> Result<impl Responder> {
-    let data = web::block(move || {
+    let data: links::LinkItem = web::block(move || {
         let mut conn = pool.get()?;
 
         links::find_link_section(&mut conn, &data.link_section_id)?;
@@ -98,12 +117,31 @@ async fn update_item(
             links::find_link_section(&mut conn, &link_section_id)?;
         }
 
-        links::update_link_item(&mut conn, *path, data.into_inner())
+        links::update_link_item(&mut conn, &path, data.into_inner())
     })
     .await?
     .map_err(error::ErrorBadRequest)?;
 
     Ok(HttpResponse::Ok().json(data))
+}
+
+#[put("/item/{id}/reorder")]
+async fn reorder_item(
+    pool: web::Data<database::DatabasePool>,
+    path: web::Path<i32>,
+    data: web::Json<links::LinkReorderItem>,
+) -> Result<impl Responder> {
+    web::block(move || {
+        let mut conn = pool.get()?;
+
+        links::find_link_item(&mut conn, &path)?;
+
+        links::reorder_link_item(&mut conn, &path, &data.new_order_number)
+    })
+    .await?
+    .map_err(error::ErrorBadRequest)?;
+
+    Ok(HttpResponse::NoContent())
 }
 
 #[delete("/item/{id}")]
@@ -114,7 +152,7 @@ async fn delete_item(
     web::block(move || {
         let mut conn = pool.get()?;
 
-        links::find_link_item(&mut conn, &*path)?;
+        links::find_link_item(&mut conn, &path)?;
 
         links::delete_link_item(&mut conn, *path)
     })
@@ -129,8 +167,10 @@ pub fn get_scope() -> Scope {
         .service(get_links)
         .service(create_section)
         .service(update_section)
+        .service(reorder_section)
         .service(delete_section)
         .service(create_item)
         .service(update_item)
+        .service(reorder_item)
         .service(delete_item)
 }
