@@ -11,7 +11,8 @@ services:
     volumes:
       - web-data:/data
     environment:
-      - RUST_LOG=trace
+      - RUST_LOG=debug
+      - APPLICATION_CORS_DISABLED=true
 
 volumes:
   web-data:

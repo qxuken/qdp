@@ -32,9 +32,9 @@ async fn main() -> std::io::Result<()> {
 
     HttpServer::new(move || {
         let cors = if cors_permisive {
-            Cors::default().max_age(3600)
-        } else {
             Cors::permissive()
+        } else {
+            Cors::default()
         };
         App::new()
             .wrap(Logger::default().log_target("app"))
