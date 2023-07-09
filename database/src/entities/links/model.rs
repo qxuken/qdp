@@ -6,6 +6,7 @@ use diesel::sqlite::Sqlite;
 use crate::schema;
 
 #[derive(Debug, Clone, Serialize, Deserialize, Queryable, Identifiable, Selectable)]
+#[serde(rename_all = "camelCase")]
 #[diesel(table_name = schema::link_section)]
 #[diesel(check_for_backend(Sqlite))]
 pub struct LinkSection {
@@ -22,15 +23,18 @@ pub struct NewLinkSection {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, AsChangeset, PartialEq)]
+#[serde(rename_all = "camelCase")]
 #[diesel(table_name = schema::link_section)]
 #[diesel(check_for_backend(Sqlite))]
 pub struct UpdateLinkSection {
     pub title: Option<String>,
+    pub order_number: i32,
 }
 
 #[derive(
     Debug, Clone, Serialize, Deserialize, Queryable, Selectable, Identifiable, Associations,
 )]
+#[serde(rename_all = "camelCase")]
 #[diesel(belongs_to(LinkSection))]
 #[diesel(table_name = schema::link_item)]
 #[diesel(check_for_backend(Sqlite))]
@@ -46,6 +50,7 @@ pub struct LinkItem {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, Insertable)]
+#[serde(rename_all = "camelCase")]
 #[diesel(table_name = schema::link_item)]
 #[diesel(check_for_backend(Sqlite))]
 pub struct NewLinkItem {
@@ -56,6 +61,7 @@ pub struct NewLinkItem {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, AsChangeset, PartialEq)]
+#[serde(rename_all = "camelCase")]
 #[diesel(belongs_to(LinkSection))]
 #[diesel(table_name = schema::link_item)]
 #[diesel(check_for_backend(Sqlite))]
@@ -63,6 +69,7 @@ pub struct UpdateLinkItem {
     pub title: Option<String>,
     pub description: Option<String>,
     pub link: Option<String>,
+    pub order_number: i32,
     pub link_section_id: Option<i32>,
 }
 
@@ -71,9 +78,4 @@ pub struct LinkSectionWithItems {
     #[serde(flatten)]
     pub section: LinkSection,
     pub items: Vec<LinkItem>,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct LinkReorderItem {
-    pub new_order_number: i32,
 }

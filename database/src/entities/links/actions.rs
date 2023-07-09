@@ -70,16 +70,12 @@ pub fn reorder_link_section(
 
     let section: LinkSection = link_section.find(section_id).first(connection)?;
 
-    let mut new_position = *new_position;
-
-    if section.order_number == new_position {
-        return Ok(());
-    }
-
     let max_order_number = schema::link_section::table
         .select(diesel::dsl::max(order_number))
         .first::<Option<i32>>(connection)?
         .unwrap_or(0);
+
+    let mut new_position = *new_position;
 
     if new_position < 1 {
         new_position = 1;
@@ -108,10 +104,6 @@ pub fn reorder_link_section(
             .set(order_number.eq(order_number - 1))
             .execute(connection)?;
     }
-
-    diesel::update(&section)
-        .set(order_number.eq(new_position))
-        .execute(connection)?;
 
     Ok(())
 }
@@ -182,9 +174,24 @@ pub fn update_link_item(
     use schema::link_item::dsl::*;
 
     let returned_data = diesel::update(link_item.find(&item_id))
-        .set(data)
+        .set(&data)
         .returning(LinkItem::as_returning())
         .get_result(connection)?;
+
+    if data.link_section_id.is_some() {
+        let link_sections = schema::link_section::table
+            .find(&returned_data.link_section_id)
+            .first::<LinkSection>(connection)?;
+
+        diesel::update(LinkItem::belonging_to(&link_sections))
+            .filter(
+                order_number
+                    .ge(&returned_data.order_number)
+                    .and(id.ne(&returned_data.id)),
+            )
+            .set(order_number.eq(order_number + 1))
+            .execute(connection)?;
+    }
 
     Ok(returned_data)
 }
@@ -198,16 +205,16 @@ pub fn reorder_link_item(
 
     let item: LinkItem = link_item.find(item_id).first(connection)?;
 
-    let mut new_position = *new_position;
+    let link_sections = schema::link_section::table
+        .find(item.link_section_id)
+        .first::<LinkSection>(connection)?;
 
-    if item.order_number == new_position {
-        return Ok(());
-    }
-
-    let max_order_number = schema::link_item::table
+    let max_order_number = LinkItem::belonging_to(&link_sections)
         .select(diesel::dsl::max(order_number))
         .first::<Option<i32>>(connection)?
         .unwrap_or(0);
+
+    let mut new_position = *new_position;
 
     if new_position < 1 {
         new_position = 1;

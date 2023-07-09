@@ -5,9 +5,9 @@
   <div id="links" class="p-4"></div>
 </div>
 <script>
-  import { fromEvent, tap, map } from 'rxjs';
+  import { fromEvent, tap, map, using } from 'rxjs';
 
-  fromEvent(window, 'load')
+  fromEvent(document, 'DOMContentLoaded')
     .pipe(
       map(() => document.querySelector('#links')),
       tap((linksEl) => {

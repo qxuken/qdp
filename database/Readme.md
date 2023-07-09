@@ -14,6 +14,12 @@ Requirements provided by [getting started page](https://diesel.rs/guides/getting
 sudo apt-get install libmysqlclient-dev libpq-dev libsqlite3-dev
 ```
 
+#### MacOS example
+
+```bash
+brew install mysql sqlite postgresql
+```
+
 ### Install cli
 
 ```bash
