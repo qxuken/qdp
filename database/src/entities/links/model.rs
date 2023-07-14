@@ -16,10 +16,12 @@ pub struct LinkSection {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, Insertable)]
+#[serde(rename_all = "camelCase")]
 #[diesel(table_name = schema::link_section)]
 #[diesel(check_for_backend(Sqlite))]
 pub struct NewLinkSection {
     pub title: String,
+    pub order_number: Option<i32>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, AsChangeset, PartialEq)]
@@ -28,7 +30,7 @@ pub struct NewLinkSection {
 #[diesel(check_for_backend(Sqlite))]
 pub struct UpdateLinkSection {
     pub title: Option<String>,
-    pub order_number: i32,
+    pub order_number: Option<i32>,
 }
 
 #[derive(
@@ -57,6 +59,7 @@ pub struct NewLinkItem {
     pub title: String,
     pub description: Option<String>,
     pub link: String,
+    pub order_number: Option<i32>,
     pub link_section_id: i32,
 }
 
@@ -69,7 +72,7 @@ pub struct UpdateLinkItem {
     pub title: Option<String>,
     pub description: Option<String>,
     pub link: Option<String>,
-    pub order_number: i32,
+    pub order_number: Option<i32>,
     pub link_section_id: Option<i32>,
 }
 
