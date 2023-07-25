@@ -1,2 +1,22 @@
-[workspace]
-members = ["frontend", "web", "api", "database"]
+[package]
+name = "qdp"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[dependencies]
+tokio = { version = "1.29.1", features = ["full"] }
+dotenv = { version = "0.15.0" }
+actix-web = { version = "4.3.1" }
+actix-cors = { version = "0.6.4" }
+env_logger = { version = "0.10.0" }
+log = { version = "0.4.19" }
+rust-embed = { version = "6.8.1", features=["include-exclude", "compression"] }
+mime_guess= { version = "2.0.4" }
+handlebars ={ version = "4.3.7", features = ["rust-embed"] }
+diesel = { version = "2.1.0", features = ["sqlite", "r2d2", "returning_clauses_for_sqlite_3_35"] }
+r2d2 = { version = "0.8.10" }
+diesel_migrations = { version = "2.1.0" }
+libsqlite3-sys = { version = "0.26.0", features = ["bundled"] }
+serde = { version = "1.0.165", features = ["derive"] }
+serde_json = { version = "1.0.99" }
