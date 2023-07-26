@@ -1,5 +1,5 @@
-import { createResource } from '@entities/Resource';
 import { z } from 'zod';
+import { createResource } from '../resource';
 
 const resourceUrl = `/api/links/section`;
 

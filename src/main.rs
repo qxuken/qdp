@@ -45,8 +45,7 @@ async fn main() -> std::io::Result<()> {
             .wrap(cors)
             .app_data(web::Data::new(database.clone()))
             .app_data(web::Data::new(registry.clone()))
-            .service(qdp::api::create_api_service("/api"))
-            .service(qdp::frontend::create_frontend_service(""))
+            .service(qdp::routes::mount(""))
     })
     .bind((host, port))?
     .run()

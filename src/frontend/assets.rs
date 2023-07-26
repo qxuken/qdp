@@ -9,7 +9,7 @@ use rust_embed::RustEmbed;
 pub struct Assets;
 
 #[get("/assets/{asset_path}")]
-pub async fn assets(asset_path: web::Path<String>) -> impl Responder {
+pub async fn assets_route(asset_path: web::Path<String>) -> impl Responder {
     match Assets::get(&asset_path) {
         Some(content) => HttpResponse::Ok()
             .content_type(

@@ -3,7 +3,7 @@
 use actix_web::HttpResponse;
 use handlebars::Handlebars;
 use rust_embed::RustEmbed;
-use serde_json::Value;
+use serde::Serialize;
 
 #[derive(RustEmbed)]
 #[folder = "./src"]
@@ -34,11 +34,11 @@ impl<'a> Templates<'a> {
         &self.registry
     }
 
-    pub fn handle(&self, template: &str, data: Option<&Value>) -> HttpResponse {
-        match self
-            .get()
-            .render(template, data.unwrap_or(&Value::default()))
-        {
+    pub fn handle<T>(&self, template: &str, data: Option<T>) -> HttpResponse
+    where
+        T: Serialize,
+    {
+        match self.get().render(template, &data) {
             Ok(body) => HttpResponse::Ok().body(body),
             Err(err) => HttpResponse::InternalServerError().body(err.desc),
         }

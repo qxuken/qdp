@@ -1,6 +1,6 @@
 use diesel::prelude::*;
 
-use crate::entities::links::{
+use super::model::{
     LinkItem, LinkSection, LinkSectionWithItems, NewLinkItem, NewLinkSection, UpdateLinkItem,
     UpdateLinkSection,
 };

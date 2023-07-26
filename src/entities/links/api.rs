@@ -1,28 +1,16 @@
-use crate::{entities::links, Database};
-use actix_web::{delete, error, get, post, put, web, HttpResponse, Responder, Result, Scope};
-
-#[get("")]
-async fn get_links(database: web::Data<Database>) -> Result<impl Responder> {
-    let data = web::block(move || {
-        let mut conn = database.get_connection()?;
-
-        links::find_all_links(&mut conn)
-    })
-    .await?
-    .map_err(error::ErrorBadRequest)?;
-
-    Ok(HttpResponse::Ok().json(data))
-}
+use super::{actions, model};
+use crate::Database;
+use actix_web::{delete, error, post, put, web, HttpResponse, Responder, Result, Scope};
 
 #[post("/section")]
 async fn create_section(
     database: web::Data<Database>,
-    data: web::Json<links::NewLinkSection>,
+    data: web::Json<model::NewLinkSection>,
 ) -> Result<impl Responder> {
     let data = web::block(move || {
         let mut conn = database.get_connection()?;
 
-        links::insert_link_section(&mut conn, data.into_inner())
+        actions::insert_link_section(&mut conn, data.into_inner())
     })
     .await?
     .map_err(error::ErrorBadRequest)?;
@@ -34,14 +22,14 @@ async fn create_section(
 async fn update_section(
     database: web::Data<Database>,
     path: web::Path<i32>,
-    data: web::Json<links::UpdateLinkSection>,
+    data: web::Json<model::UpdateLinkSection>,
 ) -> Result<impl Responder> {
     let data = web::block(move || {
         let mut conn = database.get_connection()?;
 
-        links::find_link_section(&mut conn, &path)?;
+        actions::find_link_section(&mut conn, &path)?;
 
-        links::update_link_section(&mut conn, &path, data.into_inner())
+        actions::update_link_section(&mut conn, &path, data.into_inner())
     })
     .await?
     .map_err(error::ErrorBadRequest)?;
@@ -57,9 +45,9 @@ async fn delete_section(
     web::block(move || {
         let mut conn = database.get_connection()?;
 
-        links::find_link_section(&mut conn, &path)?;
+        actions::find_link_section(&mut conn, &path)?;
 
-        links::delete_link_section(&mut conn, *path)
+        actions::delete_link_section(&mut conn, *path)
     })
     .await?
     .map_err(error::ErrorBadRequest)?;
@@ -70,14 +58,14 @@ async fn delete_section(
 #[post("/item")]
 async fn create_item(
     database: web::Data<Database>,
-    data: web::Json<links::NewLinkItem>,
+    data: web::Json<model::NewLinkItem>,
 ) -> Result<impl Responder> {
-    let data: links::LinkItem = web::block(move || {
+    let data: model::LinkItem = web::block(move || {
         let mut conn = database.get_connection()?;
 
-        links::find_link_section(&mut conn, &data.link_section_id)?;
+        actions::find_link_section(&mut conn, &data.link_section_id)?;
 
-        links::insert_link_item(&mut conn, data.into_inner())
+        actions::insert_link_item(&mut conn, data.into_inner())
     })
     .await?
     .map_err(error::ErrorBadRequest)?;
@@ -89,16 +77,16 @@ async fn create_item(
 async fn update_item(
     database: web::Data<Database>,
     path: web::Path<i32>,
-    data: web::Json<links::UpdateLinkItem>,
+    data: web::Json<model::UpdateLinkItem>,
 ) -> Result<impl Responder> {
     let data = web::block(move || {
         let mut conn = database.get_connection()?;
 
         if let Some(link_section_id) = data.link_section_id {
-            links::find_link_section(&mut conn, &link_section_id)?;
+            actions::find_link_section(&mut conn, &link_section_id)?;
         }
 
-        links::update_link_item(&mut conn, &path, data.into_inner())
+        actions::update_link_item(&mut conn, &path, data.into_inner())
     })
     .await?
     .map_err(error::ErrorBadRequest)?;
@@ -114,9 +102,9 @@ async fn delete_item(
     web::block(move || {
         let mut conn = database.get_connection()?;
 
-        links::find_link_item(&mut conn, &path)?;
+        actions::find_link_item(&mut conn, &path)?;
 
-        links::delete_link_item(&mut conn, *path)
+        actions::delete_link_item(&mut conn, *path)
     })
     .await?
     .map_err(error::ErrorBadRequest)?;
@@ -124,9 +112,8 @@ async fn delete_item(
     Ok(HttpResponse::NoContent())
 }
 
-pub fn get_scope() -> Scope {
-    web::scope("/links")
-        .service(get_links)
+pub fn mount_scope(route: &str) -> Scope {
+    web::scope(route)
         .service(create_section)
         .service(update_section)
         .service(delete_section)

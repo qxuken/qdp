@@ -1,5 +1,7 @@
-pub mod actions;
-pub mod model;
+mod actions;
+mod api;
+mod model;
+mod routes;
 
-pub use actions::*;
-pub use model::*;
+pub use api::*;
+pub use routes::*;

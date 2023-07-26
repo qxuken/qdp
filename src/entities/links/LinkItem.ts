@@ -1,5 +1,5 @@
-import {  createResource } from '@entities/Resource';
 import { z } from 'zod';
+import { createResource } from '../resource';
 
 const resourceUrl = `/api/links/item`;
 
@@ -16,7 +16,4 @@ type NewLinkItem = Omit<LinkItemRes, 'id' | 'order_number'> & {
   linkSectionId: number;
 };
 
-export const LinkItem = createResource<LinkItemRes, NewLinkItem>(
-  resourceUrl,
-  linkItemResSchema.parse,
-);
+export const LinkItem = createResource<LinkItemRes, NewLinkItem>(resourceUrl, linkItemResSchema.parse);
