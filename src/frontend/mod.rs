@@ -3,11 +3,9 @@ mod routes;
 mod templates;
 
 use actix_web::{web, Scope};
-use routes::{index, static_assets};
 
-pub use assets::Assets;
-pub use templates::TemplatesRegistry;
+pub use templates::Templates;
 
 pub fn create_frontend_service(path: &'static str) -> Scope {
-    web::scope(path).service(index).service(static_assets)
+    routes::mount(web::scope(path))
 }

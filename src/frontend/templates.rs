@@ -8,23 +8,26 @@ use serde_json::Value;
 #[derive(RustEmbed)]
 #[folder = "./src"]
 #[include = "*.hbs"]
-pub struct Templates;
+pub struct TemplatesStorage;
 
 #[derive(Clone)]
-pub struct TemplatesRegistry<'a> {
+pub struct Templates<'a> {
     registry: Handlebars<'a>,
 }
 
-impl<'a> TemplatesRegistry<'a> {
-    pub fn new() -> Self {
-        for file in Templates::iter() {
+impl<'a> Templates<'a> {
+    pub fn new(dev_mode: bool) -> Self {
+        for file in TemplatesStorage::iter() {
             log::trace!("Registered Handlebars template {}", file.as_ref());
         }
         let mut registry = Handlebars::new();
-        registry.register_embed_templates::<Templates>().unwrap();
-        registry.set_dev_mode(true);
+        registry.set_dev_mode(dev_mode);
+        log::trace!("Handlebars registry dev mode: {}", registry.dev_mode());
+        registry
+            .register_embed_templates::<TemplatesStorage>()
+            .unwrap();
 
-        TemplatesRegistry { registry }
+        Templates { registry }
     }
 
     pub fn get(&self) -> &Handlebars {
