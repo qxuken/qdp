@@ -11,8 +11,6 @@ use std::env;
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     dotenv().ok();
-    let is_dev = env::var("APPLICATION_MODE").unwrap_or("production".to_string()) == "development";
-
     env_logger::Builder::from_env(Env::default().default_filter_or("info")).init();
 
     // Setup application bind addr
@@ -31,7 +29,7 @@ async fn main() -> std::io::Result<()> {
     // Frontend related params
     let cors_permissive = env::var("APPLICATION_CORS_DISABLED").is_ok();
     let compression = Compress::default();
-    let registry = qdp::frontend::Templates::new(is_dev);
+    let registry = qdp::frontend::Templates::new();
 
     HttpServer::new(move || {
         let cors = if cors_permissive {

@@ -1,5 +1,3 @@
-#![allow(non_upper_case_globals)]
-
 use diesel::{
     r2d2::{ConnectionManager, Pool, PooledConnection},
     SqliteConnection,

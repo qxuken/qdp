@@ -1,6 +1,19 @@
 use super::{actions, model};
 use crate::Database;
-use actix_web::{delete, error, post, put, web, HttpResponse, Responder, Result, Scope};
+use actix_web::{delete, error, get, post, put, web, HttpResponse, Responder, Result, Scope};
+
+#[get("")]
+pub async fn links_data<'a>(database: web::Data<Database>) -> Result<impl Responder> {
+    let data = web::block(move || {
+        let mut conn = database.get_connection()?;
+
+        actions::find_all_links(&mut conn)
+    })
+    .await?
+    .map_err(error::ErrorBadRequest)?;
+
+    Ok(HttpResponse::Ok().json(data))
+}
 
 #[post("/section")]
 async fn create_section(
@@ -114,6 +127,7 @@ async fn delete_item(
 
 pub fn mount_scope(route: &str) -> Scope {
     web::scope(route)
+        .service(links_data)
         .service(create_section)
         .service(update_section)
         .service(delete_section)
