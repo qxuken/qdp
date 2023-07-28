@@ -4,23 +4,8 @@ WORKDIR /app
 
 COPY . .
 
-WORKDIR /app/frontend
 RUN npm ci
 RUN npm run build
-
-# ---
-
-FROM rust:1.70-bookworm as database-builder
-
-RUN apt-get update
-RUN apt-get install -y sqlite3 libsqlite3-dev
-RUN cargo install diesel_cli --no-default-features --features sqlite
-
-WORKDIR /app
-COPY . .
-
-ENV DATABASE_URL=/app/qdp.db
-RUN diesel database setup
 
 # ---
 
@@ -31,8 +16,9 @@ RUN apk add --no-cache sqlite sqlite-dev musl-dev
 
 WORKDIR /app
 COPY . .
+COPY --from=frontend-builder /app/dist ./dist
 
-RUN cargo install --path ./web
+RUN cargo install --path .
 
 # ---
 
@@ -40,15 +26,13 @@ FROM alpine:latest
 
 ENV RUST_LOG=info
 
-ENV APPLICATION_DATABASE_URL=/data/qdp.db
+ENV DATABASE_URL=/data/qdp.db
 ENV APPLICATION_FRONTEND_PATH=/frontend/
 ENV APPLICATION_HOST=0.0.0.0
 ENV APPLICATION_PORT=8080
 
-COPY --from=database-builder /app/qdp.db /data/qdp.db
-COPY --from=backend-builder /usr/local/cargo/bin/web /backend/web
-COPY --from=frontend-builder /app/frontend/dist /frontend
+COPY --from=backend-builder /usr/local/cargo/bin/qdp /backend/qdp
 
 EXPOSE 8080
 
-CMD ["/backend/web"]
+CMD ["/backend/qdp"]

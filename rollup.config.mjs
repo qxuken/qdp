@@ -32,11 +32,11 @@ async function generateConfigs() {
       },
       plugins: [
         ...(file.plugins ?? []),
+        typescript(),
+        resolve(),
         postcss({
           extract: 'style.css',
         }),
-        typescript(),
-        resolve(),
         terser(),
       ],
     }),
