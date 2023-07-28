@@ -1,5 +1,9 @@
-pub mod assets;
-pub mod helpers;
-pub mod templates;
+mod assets;
+mod helpers;
+mod templates;
+mod templates_props;
+mod templates_storage;
 
+pub use assets::{assets_route, ASSETS_PATH, ASSETS_PREFIX};
 pub use templates::Templates;
+pub use templates_props::TemplateProps;

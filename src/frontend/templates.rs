@@ -1,26 +1,12 @@
-#![allow(non_upper_case_globals)]
-
 use actix_web::HttpResponse;
 use handlebars::Handlebars;
-use rust_embed::RustEmbed;
-use serde_json::{json, Map, Value};
 
-use super::helpers;
-
-#[derive(RustEmbed)]
-#[folder = "./src"]
-#[include = "*.hbs"]
-pub struct TemplatesStorage;
-
-#[derive(Clone)]
-pub struct GlobalProps {
-    application_title: String,
-}
+use super::{assets::register_assets, helpers, templates_storage::TemplatesStorage, TemplateProps};
 
 #[derive(Clone)]
 pub struct Templates<'a> {
     registry: Handlebars<'a>,
-    global_props: GlobalProps,
+    pub global_props: TemplateProps,
 }
 
 impl<'a> Templates<'a> {
@@ -31,9 +17,9 @@ impl<'a> Templates<'a> {
             .register_embed_templates::<TemplatesStorage>()
             .unwrap();
 
-        let global_props = GlobalProps {
-            application_title: "QDP".to_string(),
-        };
+        let mut global_props = TemplateProps::default();
+        global_props.title = Some("QDP".to_string());
+        register_assets(&mut global_props);
 
         Templates {
             registry,
@@ -45,34 +31,12 @@ impl<'a> Templates<'a> {
         &self.registry
     }
 
-    pub fn template_props(&self, input: Option<Map<String, Value>>) -> Map<String, Value> {
-        let mut data = Map::default();
-        if let Some(mut value) = input {
-            data.append(&mut value);
-        }
-        if let Some(Value::String(value)) = data.get("title") {
-            data.insert(
-                "page_title".to_string(),
-                Value::String(format!(
-                    "{} - {}",
-                    self.global_props.application_title, value
-                )),
-            );
+    pub fn handle(&self, template: &str, input: Option<TemplateProps>) -> HttpResponse {
+        let data = if let Some(value) = input {
+            value.merge(self.global_props.clone())
         } else {
-            data.insert(
-                "title".to_string(),
-                json!(self.global_props.application_title.to_string()),
-            );
-            data.insert(
-                "page_title".to_string(),
-                json!(self.global_props.application_title.to_string()),
-            );
-        }
-        data
-    }
-
-    pub fn handle(&self, template: &str, input: Option<Map<String, Value>>) -> HttpResponse {
-        let data = self.template_props(input);
+            self.global_props.clone()
+        };
         match self.get().render(template, &data) {
             Ok(body) => HttpResponse::Ok().body(body),
             Err(err) => HttpResponse::InternalServerError().body(err.desc),

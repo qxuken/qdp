@@ -6,3 +6,4 @@ pub mod routes;
 pub mod schema;
 
 pub use database::Database;
+pub use frontend::{TemplateProps, Templates};

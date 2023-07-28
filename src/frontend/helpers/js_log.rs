@@ -12,10 +12,13 @@ impl HelperDef for JSLog {
         _rc: &mut RenderContext,
         out: &mut dyn Output,
     ) -> HelperResult {
-        let param = h.param(0).unwrap();
+        let params: Vec<String> = h
+            .params()
+            .iter()
+            .map(|v| serde_json::to_string(v.value()).unwrap_or("[\"error\"]".to_string()))
+            .collect();
 
-        let value = serde_json::to_string(&param.value()).unwrap_or("[\"error\"]".to_string());
-        let template = format!("<script>console.log({value})</script>");
+        let template = format!("<script>console.log({})</script>", params.join(", "));
         out.write(&template)?;
         Ok(())
     }

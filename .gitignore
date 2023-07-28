@@ -1,9 +1,10 @@
 # build output
-/dist
-/target
+dist
+target
 
-# generated types
-.astro/
+# generated cache
+.rollup.cache
+tsconfig.tsbuildinfo
 
 # dependencies
 node_modules/
@@ -20,7 +21,6 @@ pnpm-debug.log*
 
 # macOS-specific files
 .DS_Store
-
 
 # database
 *.db

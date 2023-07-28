@@ -1,5 +1,7 @@
 {{#> layout/default.hbs }}
-  {{js_log links}}
+  {{js_log data}}
+  {{js_log "links" links}}
+  {{js_log "links" data.links}}
   {{#each links as |link|}}
     <div>
       <h2>{{link.title}}</h2>

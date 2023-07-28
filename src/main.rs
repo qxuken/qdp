@@ -1,6 +1,6 @@
 use actix_cors::Cors;
 use actix_web::{
-    middleware::{Compress, Logger},
+    middleware::{Compress, Logger, NormalizePath},
     web, App, HttpServer,
 };
 use dotenv::dotenv;
@@ -39,6 +39,7 @@ async fn main() -> std::io::Result<()> {
         };
         App::new()
             .wrap(Logger::default().log_target("app"))
+            .wrap(NormalizePath::trim())
             .wrap(compression.clone())
             .wrap(cors)
             .app_data(web::Data::new(database.clone()))

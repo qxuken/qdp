@@ -2,12 +2,18 @@
   <head>
     <meta charset='UTF-8' />
     <meta name='viewport' content='width=device-width, initial-scale=1.0' />
-    {{#if page_title}}
-      <title>{{page_title}}</title>
+    {{#if title}}
+        <title>{{title}}</title>
     {{/if}}
+    {{#each scripts as |script_url|}}
+        {{ script script_url }}
+    {{/each}}
+    {{#each stylesheets as |stylesheet_url|}}
+        {{ stylesheet stylesheet_url }}
+    {{/each}}
   </head>
   <body>
-    <h1>{{title}}</h1>
-    {{> @partial-block}}
+    <h1 class="text-3xl">{{title}}</h1>
+    {{> @partial-block data }}
   </body>
 </html>
