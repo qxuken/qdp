@@ -1,6 +1,7 @@
 # build output
 dist
 target
+.tmp
 
 # generated cache
 .rollup.cache

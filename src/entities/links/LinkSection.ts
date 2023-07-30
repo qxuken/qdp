@@ -9,7 +9,7 @@ const linkSectionResSchema = z.object({
   orderNumber: z.number(),
 });
 
-type LinkSectionRes = z.infer<typeof linkSectionResSchema>;
+export type LinkSectionRes = z.infer<typeof linkSectionResSchema>;
 type NewLinkSection = Omit<LinkSectionRes, 'id' | 'order_number' | 'items'>;
 
 export const LinkSection = createResource<LinkSectionRes, NewLinkSection>(

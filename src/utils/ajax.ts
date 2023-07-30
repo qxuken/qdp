@@ -1,5 +1,6 @@
 import { ajax, type AjaxResponse } from 'rxjs/ajax';
-import { Observable, map } from 'rxjs';
+import type { Observable } from 'rxjs';
+import { map } from 'rxjs';
 
 const defaultHeaders = {
   'Content-Type': 'application/json',

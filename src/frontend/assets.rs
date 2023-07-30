@@ -28,5 +28,5 @@ pub async fn assets_route(asset_path: web::Path<String>) -> impl Responder {
 
 pub fn register_assets(props: &mut TemplateProps) {
     props.scripts.push("/lib.js".to_string());
-    props.stylesheets.push("/style.css".to_string());
+    props.stylesheets.push("/lib.css".to_string());
 }

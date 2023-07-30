@@ -3,25 +3,20 @@ module.exports = {
     browser: true,
     es2021: true,
   },
-  extends: ['eslint:recommended', 'plugin:@typescript-eslint/recommended', 'plugin:prettier/recommended'],
-  overrides: [
-    {
-      env: {
-        node: true,
-      },
-      files: ['.eslintrc.{js,cjs}', 'tailwind*.{js,cjs}', 'postcss*.{js,cjs}', 'rollup.*.{js,mjs}'],
-      parserOptions: {
-        sourceType: 'script',
-      },
-    },
+  extends: [
+    'eslint:recommended',
+    'plugin:@typescript-eslint/recommended',
+    'plugin:@typescript-eslint/stylistic',
+    'plugin:prettier/recommended',
   ],
+  ignorePatterns: ['/*', '!/src'],
   parser: '@typescript-eslint/parser',
   parserOptions: {
-    ecmaVersion: 'latest',
-    sourceType: 'module',
+    project: true,
   },
   plugins: ['@typescript-eslint', 'prettier'],
   rules: {
     'prefer-const': 'off',
+    '@typescript-eslint/consistent-type-imports': 'error',
   },
 };

@@ -1,31 +1,31 @@
 import type { Observable } from 'rxjs';
 import { map } from 'rxjs';
-import { deleteJSON, postJSON, putJSON } from '../ajax';
+import { deleteJSON, postJSON, putJSON } from '../../utils/ajax';
 
 export type ValidateFn<T> = (validate: unknown) => T;
 export type GenericResourceType<T> = { id: number } & Readonly<T>;
-export type ResourceItemWithActions<T extends Object, U extends Object, E extends Object = {}> = T &
+export type ResourceItemWithActions<T extends object, U extends object, E = object> = T &
   E & {
     update$(data: U): Observable<ResourceItemWithActions<T, U, E>>;
     delete$(): Observable<null>;
   };
-export type Resource<
+export interface Resource<
   T extends GenericResourceType<O>,
   C extends Omit<T, 'id'> = Omit<T, 'id'>,
   U extends Partial<Omit<T, 'id'>> = Partial<Omit<T, 'id'>>,
-  O extends Object = {},
-  E extends Object = {},
-> = {
+  O = object,
+  E = object,
+> {
   createItem(value: T): ResourceItemWithActions<T, U, E>;
   create$(data: C): Observable<ResourceItemWithActions<T, U, E>>;
-};
+}
 
 export function createResource<
   T extends GenericResourceType<O>,
   C extends Omit<T, 'id'> = Omit<T, 'id'>,
   U extends Partial<Omit<T, 'id'>> = Partial<Omit<T, 'id'>>,
-  O extends Object = {},
-  E extends Object = {},
+  O = object,
+  E = object,
 >(
   resourceUrl: string,
   validate: ValidateFn<T>,

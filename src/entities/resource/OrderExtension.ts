@@ -1,15 +1,15 @@
 import { map, type Observable } from 'rxjs';
 import type { GenericResourceType, ValidateFn } from './Resource';
-import { putJSON } from '../ajax';
+import { putJSON } from '../../utils/ajax';
 
-export type Orderable<T> = {
+export interface Orderable {
   orderNumber: number;
-};
+}
 
-export type OrderExtension<T> = Orderable<T> & {
+export type OrderExtension<T> = Orderable & {
   reorder(newOrderNumber: number): Observable<T>;
 };
-export function createOrderExtension<T extends Orderable<I> & GenericResourceType<T>, I>(
+export function createOrderExtension<T extends Orderable & GenericResourceType<T>>(
   data: T,
   resourceUrl: string,
   validate: ValidateFn<T>,
