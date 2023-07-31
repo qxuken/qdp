@@ -27,9 +27,9 @@ async fn main() -> std::io::Result<()> {
     database.run_migrations();
 
     // Frontend related params
-    let cors_permissive = env::var("APPLICATION_CORS_DISABLED").is_ok();
+    let cors_permissive = env::var("APPLICATION_CORS_DISABLED").is_ok_and(|e| e == "true");
     let compression = Compress::default();
-    let registry = qdp::frontend::Templates::new();
+    let templates = qdp::frontend::Templates::new();
 
     HttpServer::new(move || {
         let cors = if cors_permissive {
@@ -43,7 +43,7 @@ async fn main() -> std::io::Result<()> {
             .wrap(compression.clone())
             .wrap(cors)
             .app_data(web::Data::new(database.clone()))
-            .app_data(web::Data::new(registry.clone()))
+            .app_data(web::Data::new(templates.clone()))
             .service(qdp::routes::mount(""))
     })
     .bind((host, port))?
