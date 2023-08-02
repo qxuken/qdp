@@ -12,6 +12,11 @@ use std::env;
 async fn main() -> std::io::Result<()> {
     dotenv().ok();
     env_logger::Builder::from_env(Env::default().default_filter_or("info")).init();
+    let is_dev = env::var("APPLICATION_MODE").is_ok_and(|e| e == "development");
+    log::info!(
+        "Application mode is {}",
+        if is_dev { "development" } else { "production" }
+    );
 
     // Setup application bind addr
     let host = env::var("APPLICATION_HOST").unwrap_or("localhost".to_string());
@@ -19,7 +24,6 @@ async fn main() -> std::io::Result<()> {
         .unwrap_or_else(|_| "8080".to_string())
         .parse()
         .expect("PORT must be a number");
-    log::info!("Starting on: http://{}:{:?}", host, port);
 
     // Setup Database
     let database_url = env::var("DATABASE_URL").ok();
@@ -29,7 +33,9 @@ async fn main() -> std::io::Result<()> {
     // Frontend related params
     let cors_permissive = env::var("APPLICATION_CORS_DISABLED").is_ok_and(|e| e == "true");
     let compression = Compress::default();
-    let templates = qdp::frontend::Templates::new();
+    let templates = qdp::frontend::Templates::new(is_dev);
+
+    log::info!("Starting on: http://{}:{:?}", host, port);
 
     HttpServer::new(move || {
         let cors = if cors_permissive {

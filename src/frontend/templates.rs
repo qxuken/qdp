@@ -10,12 +10,29 @@ pub struct Templates<'a> {
 }
 
 impl<'a> Templates<'a> {
-    pub fn new() -> Self {
+    pub fn new(is_dev: bool) -> Self {
         let mut registry = Handlebars::new();
+        registry.set_dev_mode(is_dev);
         helpers::register_helpers(&mut registry);
-        registry
-            .register_embed_templates::<TemplatesStorage>()
-            .unwrap();
+        if registry.dev_mode() {
+            for (root_file_path, rel_file_path) in TemplatesStorage::project_root_names() {
+                registry
+                    .register_template_file(&rel_file_path, &root_file_path)
+                    .unwrap();
+            }
+        } else {
+            registry
+                .register_embed_templates::<TemplatesStorage>()
+                .unwrap();
+        }
+        // registry
+        //     .register_embed_templates_without_extension::<TemplatesStorage>(".hbs")
+        //     .unwrap();
+
+        log::debug!(
+            "Registered templates: {:?}",
+            registry.get_templates().keys()
+        );
 
         let mut global_props = TemplateProps::default();
         global_props.title = Some("QDP".to_string());
