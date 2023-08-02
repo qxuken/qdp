@@ -690,6 +690,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "fed44880c466736ef9a5c5b5facefb5ed0785676d0c02d612db14e54f0d84286"
 
 [[package]]
+name = "hex"
+version = "0.4.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7f24254aa9a54b5c858eaee2f5bccdb46aaf0e486a595ed5fd8f86ba55232a70"
+
+[[package]]
 name = "http"
 version = "0.2.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1115,9 +1121,9 @@ dependencies = [
  "dotenv",
  "env_logger",
  "handlebars",
+ "hex",
  "libsqlite3-sys",
  "log",
- "mime_guess",
  "r2d2",
  "rust-embed",
  "serde",
@@ -1239,6 +1245,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9d38ff6bf570dc3bb7100fce9f7b60c33fa71d80e88da3f2580df4ff2bdded74"
 dependencies = [
  "globset",
+ "mime_guess",
  "sha2",
  "walkdir",
 ]

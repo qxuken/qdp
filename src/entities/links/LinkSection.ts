@@ -10,7 +10,7 @@ const linkSectionResSchema = z.object({
 });
 
 export type LinkSectionRes = z.infer<typeof linkSectionResSchema>;
-type NewLinkSection = Omit<LinkSectionRes, 'id' | 'order_number' | 'items'>;
+type NewLinkSection = Omit<LinkSectionRes, 'id' | 'items'>;
 
 export const LinkSection = createResource<LinkSectionRes, NewLinkSection>(
   resourceUrl,

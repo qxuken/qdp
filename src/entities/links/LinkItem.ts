@@ -12,7 +12,7 @@ const linkItemResSchema = z.object({
 });
 
 type LinkItemRes = z.infer<typeof linkItemResSchema>;
-type NewLinkItem = Omit<LinkItemRes, 'id' | 'order_number'> & {
+type NewLinkItem = Omit<LinkItemRes, 'id'> & {
   linkSectionId: number;
 };
 
