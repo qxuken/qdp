@@ -13,19 +13,11 @@ let handlebars = chokidar.watch(['src/**/*.hbs'], {
   ignoreInitial: true,
 });
 
-let assets = chokidar.watch(
-  ['src/**/*.{ts,css}', 'postcss.config.js', 'build.assets.mjs', 'tsconfig.json', 'package.json'],
-  {
-    ignoreInitial: true,
-  },
-);
+let assets = chokidar.watch(['src/**/*.{ts,css}', 'postcss.config.js', 'build.assets.mjs', 'tsconfig.json'], {
+  ignoreInitial: true,
+});
 
-let backSub = merge(
-  fromEvent(back, 'change'),
-  fromEvent(back, 'unlink'),
-  fromEvent(handlebars, 'add'),
-  fromEvent(handlebars, 'unlink'),
-)
+let backSub = merge(fromEvent(back, 'change'), fromEvent(handlebars, 'add'))
   .pipe(
     debounceTime(200),
     startWith('init'),
