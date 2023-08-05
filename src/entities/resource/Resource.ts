@@ -20,6 +20,22 @@ export interface Resource<
   create$(data: C): Observable<ResourceItemWithActions<T, U, E>>;
 }
 
+/**
+ * @example
+ * import { z } from 'zod';
+ * import { createResource } from '../resource';
+ * const resourceUrl = `/api/item`;
+ * const ItemResSchema = z.object({
+ *   id: z.number(),
+ *   title: z.string(),
+ *   description: z.string(),
+ * });
+ * type ItemRes = z.infer<typeof ItemResSchema>;
+ * type NeItem = Omit<ItemRes, 'id'> & {
+ *   omittedData: number;
+ * };
+ * export const LinkItem = createResource<ItemRes, NewLinkItem>(resourceUrl, ItemResSchema.parse);
+ */
 export function createResource<
   T extends GenericResourceType<O>,
   C extends Omit<T, 'id'> = Omit<T, 'id'>,
