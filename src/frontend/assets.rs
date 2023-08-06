@@ -1,11 +1,18 @@
 #![allow(non_upper_case_globals)]
+use std::{
+    borrow::Cow,
+    collections::HashMap,
+    time::{Duration, UNIX_EPOCH},
+};
 
 use actix_web::{
-    http::header::{ETag, EntityTag, LastModified},
-    web, HttpResponse, Responder,
+    http::header::{
+        CacheControl, CacheDirective, ETag, EntityTag, Header, HttpDate, IfModifiedSince,
+        IfNoneMatch, LastModified,
+    },
+    web, HttpRequest, HttpResponse, Responder,
 };
 use rust_embed::RustEmbed;
-use std::time::{Duration, SystemTime};
 
 use crate::TemplateProps;
 
@@ -16,17 +23,95 @@ pub const ASSETS_PATH: &'static str = "/assets/{asset_path:.*}";
 #[folder = "./dist"]
 pub struct Assets;
 
-pub async fn assets_route(asset_path: web::Path<String>) -> impl Responder {
+#[derive(Clone)]
+pub struct AssetsMetadata {
+    pub e_tag: Option<EntityTag>,
+    pub last_modified: Option<HttpDate>,
+}
+#[derive(Clone)]
+pub struct AssetsMetadataStore {
+    map: HashMap<Cow<'static, str>, AssetsMetadata>,
+}
+
+impl AssetsMetadataStore {
+    pub fn boot(is_dev: bool) -> Self {
+        let mut store = AssetsMetadataStore {
+            map: HashMap::new(),
+        };
+        if is_dev {
+            return store;
+        }
+        for asset_path in Assets::iter() {
+            let e_tag = store.e_tag(&asset_path);
+            let last_modified = store.last_modified(&asset_path);
+            store.map.insert(
+                asset_path,
+                AssetsMetadata {
+                    e_tag,
+                    last_modified,
+                },
+            );
+        }
+        return store;
+    }
+
+    pub fn e_tag(&self, asset_path: &str) -> Option<EntityTag> {
+        match self.map.get(asset_path) {
+            Some(meta) => meta.e_tag.clone(),
+            None => Assets::get(&asset_path)
+                .map(|content| hex::encode(content.metadata.sha256_hash()))
+                .map(EntityTag::new_weak),
+        }
+    }
+
+    pub fn last_modified(&self, asset_path: &str) -> Option<HttpDate> {
+        match self.map.get(asset_path) {
+            Some(meta) => meta.last_modified.clone(),
+            None => Assets::get(&asset_path)
+                .and_then(|content| content.metadata.last_modified())
+                .map(|lm| UNIX_EPOCH + Duration::from_secs(lm))
+                .map(HttpDate::from),
+        }
+    }
+}
+
+pub async fn assets_route(
+    req: HttpRequest,
+    meta: web::Data<AssetsMetadataStore>,
+    asset_path: web::Path<String>,
+) -> impl Responder {
     match Assets::get(&asset_path) {
         Some(content) => {
-            let hash = hex::encode(content.metadata.sha256_hash());
             let mut res = HttpResponse::Ok();
-            res.content_type(content.metadata.mimetype());
-            res.insert_header(ETag(EntityTag::new_strong(hash)));
-            if let Some(last_modified) = content.metadata.last_modified() {
-                let last_modified = SystemTime::now() - Duration::from_secs(last_modified);
-                res.insert_header(LastModified(last_modified.into()));
+
+            if let Some(e_tag) = meta.e_tag(&asset_path) {
+                if IfNoneMatch::parse(&req)
+                    .ok()
+                    .map(|h| match h {
+                        IfNoneMatch::Any => vec![],
+                        IfNoneMatch::Items(tags) => tags,
+                    })
+                    .unwrap_or_default()
+                    .contains(&e_tag)
+                {
+                    return HttpResponse::NotModified().finish();
+                }
+                res.insert_header(ETag(e_tag));
             }
+
+            if let Some(http_date) = meta.last_modified(&asset_path) {
+                if IfModifiedSince::parse(&req).ok().map(|h| h.0) == Some(http_date) {
+                    return HttpResponse::NotModified().finish();
+                }
+                res.insert_header(LastModified(http_date));
+            }
+
+            res.content_type(content.metadata.mimetype());
+            res.append_header(CacheControl(vec![
+                CacheDirective::Public,
+                CacheDirective::NoCache,
+            ]));
+
             res.body(content.data.into_owned())
         }
         None => HttpResponse::NotFound().body("404 Not Found"),
@@ -34,6 +119,6 @@ pub async fn assets_route(asset_path: web::Path<String>) -> impl Responder {
 }
 
 pub fn register_assets(props: &mut TemplateProps) {
-    props.scripts.push("/lib.js".to_string());
+    props.scripts.push(("/lib.js".to_string(), Some("async")));
     props.stylesheets.push("/lib.css".to_string());
 }

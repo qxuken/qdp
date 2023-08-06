@@ -2,11 +2,12 @@
   <head>
     <meta charset='UTF-8' />
     <meta name='viewport' content='width=device-width, initial-scale=1.0' />
+    <link rel="shortcut icon" href="/favicon.svg" type="image/x-icon">
     {{#if title}}
         <title>{{title}}</title>
     {{/if}}
-    {{#each scripts as |script_url|}}
-        {{ script script_url }}
+    {{#each scripts as |sc|}}
+        {{ script sc.0 sc.1 }}
     {{/each}}
     {{#each stylesheets as |stylesheet_url|}}
         {{ stylesheet stylesheet_url }}

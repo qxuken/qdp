@@ -8,6 +8,7 @@
     "lint:fix": "eslint src --fix"
   },
   "dependencies": {
+    "htmx.org": "1.9.4",
     "rxjs": "7.8.1",
     "zod": "3.21.4"
   },

@@ -5,7 +5,7 @@ use actix_web::{
 };
 use dotenv::dotenv;
 use env_logger::Env;
-use qdp::Database;
+use qdp::{frontend::AssetsMetadataStore, Database};
 use std::env;
 
 #[actix_web::main]
@@ -26,14 +26,15 @@ async fn main() -> std::io::Result<()> {
         .expect("PORT must be a number");
 
     // Setup Database
-    let database_url = env::var("DATABASE_URL").ok();
-    let database = Database::new(database_url);
+    let database_url: Option<String> = env::var("DATABASE_URL").ok();
+    let database = web::Data::new(Database::new(database_url));
     database.run_migrations();
 
     // Frontend related params
     let cors_permissive = env::var("APPLICATION_CORS_DISABLED").is_ok_and(|e| e == "true");
     let compression = Compress::default();
-    let templates = qdp::frontend::Templates::new(is_dev);
+    let templates = web::Data::new(qdp::frontend::Templates::new(is_dev));
+    let assets_metadata = web::Data::new(AssetsMetadataStore::boot(is_dev));
 
     log::info!("Starting on: http://{}:{:?}", host, port);
 
@@ -48,8 +49,9 @@ async fn main() -> std::io::Result<()> {
             .wrap(NormalizePath::trim())
             .wrap(compression.clone())
             .wrap(cors)
-            .app_data(web::Data::new(database.clone()))
-            .app_data(web::Data::new(templates.clone()))
+            .app_data(database.clone())
+            .app_data(templates.clone())
+            .app_data(assets_metadata.clone())
             .service(qdp::routes::mount(""))
     })
     .bind((host, port))?

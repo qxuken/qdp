@@ -5,7 +5,7 @@ use serde_json::{Map, Value};
 pub struct TemplateProps {
     pub title: Option<String>,
     pub data: Option<Map<String, Value>>,
-    pub scripts: Vec<String>,
+    pub scripts: Vec<(String, Option<&'static str>)>,
     pub stylesheets: Vec<String>,
 }
 

@@ -17,17 +17,23 @@ impl HelperDef for Script {
         _rc: &mut RenderContext,
         out: &mut dyn Output,
     ) -> HelperResult {
+        let modificator = if let Some(Value::String(modif)) = h.param(1).map(|v| v.value()) {
+            modif
+        } else {
+            ""
+        };
         match h
             .param(0)
-            .ok_or(RenderError::new("Param not found for helper Script"))?
+            .ok_or(RenderError::new("Url not found for helper Script"))?
             .value()
         {
             Value::String(script_url) => {
-                let template: String = format!("<script src={ASSETS_PREFIX}{script_url}></script>");
+                let template: String =
+                    format!("<script {modificator} src={ASSETS_PREFIX}{script_url}></script>");
                 out.write(&template)?;
                 Ok(())
             }
-            _ => Err(RenderError::new("Param has wrong type for helper Script")),
+            _ => Err(RenderError::new("Url has wrong type for helper Script")),
         }
     }
 }

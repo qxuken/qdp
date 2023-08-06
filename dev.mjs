@@ -1,9 +1,22 @@
 import { spawn } from 'node:child_process';
 import chokidar from 'chokidar';
-import { fromEvent, debounceTime, merge, tap, switchMap, startWith, catchError, EMPTY } from 'rxjs';
+import {
+  fromEvent,
+  debounceTime,
+  merge,
+  tap,
+  switchMap,
+  startWith,
+  catchError,
+  EMPTY,
+} from 'rxjs';
 import { build } from './build.assets.mjs';
 
 let cargo;
+
+let env = chokidar.watch(['.env'], {
+  ignoreInitial: true,
+});
 
 let back = chokidar.watch(['src/**/*.rs', 'cargo.toml'], {
   ignoreInitial: true,
@@ -13,11 +26,18 @@ let handlebars = chokidar.watch(['src/**/*.hbs'], {
   ignoreInitial: true,
 });
 
-let assets = chokidar.watch(['src/**/*.{ts,css}', 'postcss.config.js', 'build.assets.mjs', 'tsconfig.json'], {
-  ignoreInitial: true,
-});
+let assets = chokidar.watch(
+  ['src/**/*.{ts,css}', 'postcss.config.js', 'build.assets.mjs', 'tsconfig.json'],
+  {
+    ignoreInitial: true,
+  },
+);
 
-let backSub = merge(fromEvent(back, 'change'), fromEvent(handlebars, 'add'))
+let backSub = merge(
+  fromEvent(env, 'change'),
+  fromEvent(back, 'change'),
+  fromEvent(handlebars, 'add'),
+)
   .pipe(
     debounceTime(200),
     startWith('init'),
@@ -35,6 +55,7 @@ let backSub = merge(fromEvent(back, 'change'), fromEvent(handlebars, 'add'))
   .subscribe();
 
 let buildAssetsSub = merge(
+  fromEvent(env, 'change'),
   fromEvent(assets, 'change'),
   fromEvent(assets, 'unlink'),
   fromEvent(handlebars, 'change'),
