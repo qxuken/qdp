@@ -3,10 +3,10 @@ use serde_json::{Map, Value};
 
 #[derive(Clone, Default, Serialize)]
 pub struct TemplateProps {
-    pub title: Option<String>,
+    pub title: Option<&'static str>,
     pub data: Option<Map<String, Value>>,
-    pub scripts: Vec<(String, Option<&'static str>)>,
-    pub stylesheets: Vec<String>,
+    pub scripts: Vec<(&'static str, Option<&'static str>)>,
+    pub stylesheets: Vec<&'static str>,
 }
 
 impl TemplateProps {

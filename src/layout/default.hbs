@@ -13,8 +13,8 @@
         {{ stylesheet stylesheet_url }}
     {{/each}}
   </head>
-  <body>
-    <h1 class="text-3xl">{{title}}</h1>
+  <body class="bg-black p-8">
+    {{> layout/header.hbs title=title }}
     {{> @partial-block data }}
   </body>
 </html>

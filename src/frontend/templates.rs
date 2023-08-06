@@ -35,7 +35,7 @@ impl<'a> Templates<'a> {
         );
 
         let mut global_props = TemplateProps::default();
-        global_props.title = Some("QDP".to_string());
+        global_props.title = Some("QDP");
         register_assets(&mut global_props);
 
         Templates {

@@ -16,13 +16,14 @@ pub async fn links_page<'a>(
     .await??;
 
     let mut data = Map::new();
-    data.insert("links".to_string(), json!(links));
+    data.insert("links".to_owned(), json!(links));
 
     let mut props = TemplateProps::default();
+    props.title = Some("Dashboard");
     props.data = Some(data);
     props
         .scripts
-        .push(("/entities/links/mod.js".to_string(), Some("async")));
+        .push(("/entities/links/mod.js", Some("async")));
 
     Ok(templates.handle("entities/links/links.hbs", Some(props)))
 }

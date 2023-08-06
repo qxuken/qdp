@@ -119,6 +119,6 @@ pub async fn assets_route(
 }
 
 pub fn register_assets(props: &mut TemplateProps) {
-    props.scripts.push(("/lib.js".to_string(), Some("async")));
-    props.stylesheets.push("/lib.css".to_string());
+    props.scripts.push(("/lib.js", Some("async")));
+    props.stylesheets.push("/lib.css");
 }
