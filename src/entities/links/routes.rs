@@ -2,6 +2,8 @@ use crate::{Database, TemplateProps, Templates};
 use actix_web::{error, web, Responder, Result};
 use serde_json::{json, Map};
 
+use super::links_view::LinksView;
+
 pub async fn links_page<'a>(
     templates: web::Data<Templates<'a>>,
     database: web::Data<Database>,
@@ -9,7 +11,7 @@ pub async fn links_page<'a>(
     let links = web::block(move || {
         let mut conn = database.get_connection()?;
 
-        super::actions::find_all_links(&mut conn)
+        LinksView::query(&mut conn)
     })
     .await?
     .map_err(error::ErrorBadRequest)?;

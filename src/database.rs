@@ -1,8 +1,8 @@
+use crate::{error::Error, result::Result};
 use diesel::{
     r2d2::{ConnectionManager, Pool, PooledConnection},
     SqliteConnection,
 };
-
 use diesel_migrations::EmbeddedMigrations;
 use diesel_migrations::{embed_migrations, MigrationHarness};
 
@@ -25,10 +25,8 @@ impl Database {
         Database { pool }
     }
 
-    pub fn get_connection(
-        &self,
-    ) -> Result<PooledConnection<ConnectionManager<SqliteConnection>>, r2d2::Error> {
-        self.pool.get()
+    pub fn get_connection(&self) -> Result<PooledConnection<ConnectionManager<SqliteConnection>>> {
+        self.pool.get().map_err(|_| Error::DatabaseTimeout)
     }
 
     pub fn run_migrations(&self) -> () {

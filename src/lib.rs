@@ -2,6 +2,7 @@ pub mod database;
 pub mod entities;
 pub mod error;
 pub mod frontend;
+pub mod result;
 pub mod routes;
 pub mod schema;
 

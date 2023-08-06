@@ -1,4 +1,8 @@
-use super::{actions, model};
+use super::{
+    link_item::{LinkItem, NewLinkItem, UpdateLinkItem},
+    link_section::{LinkSection, NewLinkSection, UpdateLinkSection},
+    links_view::LinksView,
+};
 use crate::Database;
 use actix_web::{delete, error, get, post, put, web, HttpResponse, Responder, Result, Scope};
 
@@ -7,7 +11,7 @@ pub async fn links_data<'a>(database: web::Data<Database>) -> Result<impl Respon
     let data = web::block(move || {
         let mut conn = database.get_connection()?;
 
-        actions::find_all_links(&mut conn)
+        LinksView::query(&mut conn)
     })
     .await?
     .map_err(error::ErrorBadRequest)?;
@@ -18,15 +22,14 @@ pub async fn links_data<'a>(database: web::Data<Database>) -> Result<impl Respon
 #[post("/section")]
 async fn create_section(
     database: web::Data<Database>,
-    data: web::Json<model::NewLinkSection>,
+    data: web::Json<NewLinkSection>,
 ) -> Result<impl Responder> {
     let data = web::block(move || {
         let mut conn = database.get_connection()?;
 
-        actions::insert_link_section(&mut conn, data.into_inner())
+        LinkSection::create(&mut conn, data.into_inner())
     })
-    .await?
-    .map_err(error::ErrorBadRequest)?;
+    .await??;
 
     Ok(HttpResponse::Created().json(data))
 }
@@ -34,18 +37,17 @@ async fn create_section(
 #[put("/section/{id}")]
 async fn update_section(
     database: web::Data<Database>,
-    path: web::Path<i32>,
-    data: web::Json<model::UpdateLinkSection>,
+    section_id: web::Path<i32>,
+    data: web::Json<UpdateLinkSection>,
 ) -> Result<impl Responder> {
     let data = web::block(move || {
         let mut conn = database.get_connection()?;
 
-        actions::find_link_section(&mut conn, &path)?;
+        let section = LinkSection::find_by_id(&mut conn, &section_id.into_inner())?;
 
-        actions::update_link_section(&mut conn, &path, data.into_inner())
+        section.update(&mut conn, &data.into_inner())
     })
-    .await?
-    .map_err(error::ErrorBadRequest)?;
+    .await??;
 
     Ok(HttpResponse::Ok().json(data))
 }
@@ -53,17 +55,16 @@ async fn update_section(
 #[delete("/section/{id}")]
 async fn delete_section(
     database: web::Data<Database>,
-    path: web::Path<i32>,
+    section_id: web::Path<i32>,
 ) -> Result<impl Responder> {
     web::block(move || {
         let mut conn = database.get_connection()?;
 
-        actions::find_link_section(&mut conn, &path)?;
+        let section = LinkSection::find_by_id(&mut conn, &section_id.into_inner())?;
 
-        actions::delete_link_section(&mut conn, *path)
+        section.delete(&mut conn)
     })
-    .await?
-    .map_err(error::ErrorBadRequest)?;
+    .await??;
 
     Ok(HttpResponse::NoContent())
 }
@@ -71,17 +72,15 @@ async fn delete_section(
 #[post("/item")]
 async fn create_item(
     database: web::Data<Database>,
-    data: web::Json<model::NewLinkItem>,
+    data: web::Json<NewLinkItem>,
 ) -> Result<impl Responder> {
-    let data: model::LinkItem = web::block(move || {
+    let data = web::block(move || {
         let mut conn = database.get_connection()?;
 
-        actions::find_link_section(&mut conn, &data.link_section_id)?;
-
-        actions::insert_link_item(&mut conn, data.into_inner())
+        LinkSection::find_by_id(&mut conn, &data.link_section_id)?;
+        LinkItem::create(&mut conn, data.into_inner())
     })
-    .await?
-    .map_err(error::ErrorBadRequest)?;
+    .await??;
 
     Ok(HttpResponse::Created().json(data))
 }
@@ -89,17 +88,17 @@ async fn create_item(
 #[put("/item/{id}")]
 async fn update_item(
     database: web::Data<Database>,
-    path: web::Path<i32>,
-    data: web::Json<model::UpdateLinkItem>,
+    item_id: web::Path<i32>,
+    data: web::Json<UpdateLinkItem>,
 ) -> Result<impl Responder> {
     let data = web::block(move || {
         let mut conn = database.get_connection()?;
 
         if let Some(link_section_id) = data.link_section_id {
-            actions::find_link_section(&mut conn, &link_section_id)?;
+            LinkSection::find_by_id(&mut conn, &link_section_id)?;
         }
-
-        actions::update_link_item(&mut conn, &path, data.into_inner())
+        let item = LinkItem::find_by_id(&mut conn, &item_id)?;
+        item.update(&mut conn, data.into_inner())
     })
     .await?
     .map_err(error::ErrorBadRequest)?;
@@ -110,14 +109,13 @@ async fn update_item(
 #[delete("/item/{id}")]
 async fn delete_item(
     database: web::Data<Database>,
-    path: web::Path<i32>,
+    item_id: web::Path<i32>,
 ) -> Result<impl Responder> {
     web::block(move || {
         let mut conn = database.get_connection()?;
 
-        actions::find_link_item(&mut conn, &path)?;
-
-        actions::delete_link_item(&mut conn, *path)
+        let item = LinkItem::find_by_id(&mut conn, &item_id)?;
+        item.delete(&mut conn)
     })
     .await?
     .map_err(error::ErrorBadRequest)?;

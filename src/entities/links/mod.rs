@@ -1,7 +1,7 @@
-mod actions;
 mod api;
+mod link_item;
 mod link_section;
-mod model;
+mod links_view;
 mod routes;
 
 pub use api::*;
