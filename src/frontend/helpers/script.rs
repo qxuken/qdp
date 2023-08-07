@@ -29,7 +29,7 @@ impl HelperDef for Script {
         {
             Value::String(script_url) => {
                 let template: String =
-                    format!("<script {modificator} src={ASSETS_PREFIX}{script_url}></script>");
+                    format!("<script {modificator} type=\"module\" src={ASSETS_PREFIX}{script_url}></script>");
                 out.write(&template)?;
                 Ok(())
             }

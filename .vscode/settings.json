@@ -7,9 +7,6 @@
       "Handlebars": "html"
     },
   "tailwindCSS.includeLanguages": {
-      "javascript": "javascript",
-      "typescript": "javascript",
-      "plaintext": "html",
       "Handlebars": "html"
   },
   "tailwindCSS.emmetCompletions": true,

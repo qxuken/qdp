@@ -1,5 +1,8 @@
+import process from 'node:process';
 import { spawn } from 'node:child_process';
 import chokidar from 'chokidar';
+import dotenv from 'dotenv';
+import { postLiveReloadEvent, runLiveReloadServer } from './dev.livereload.mjs';
 import {
   fromEvent,
   debounceTime,
@@ -7,10 +10,23 @@ import {
   tap,
   switchMap,
   startWith,
-  catchError,
-  EMPTY,
+  retryWhen,
+  delayWhen,
+  timer,
 } from 'rxjs';
 import { build } from './build.assets.mjs';
+
+dotenv.config();
+
+const LIVE_RELOAD_PORT = 5555;
+let assetsBuildDefines = {};
+
+if (process.env.APPLICATION_MODE === 'development') {
+  runLiveReloadServer(LIVE_RELOAD_PORT);
+  assetsBuildDefines['LIVE_RELOAD_URL'] = JSON.stringify(
+    `http://localhost:${LIVE_RELOAD_PORT}`,
+  );
+}
 
 let cargo;
 
@@ -47,10 +63,13 @@ let backSub = merge(
         stdio: ['inherit', 'inherit', 'inherit'],
       });
     }),
-    catchError((e) => {
-      console.error(e);
-      return EMPTY;
-    }),
+    tap((event) => postLiveReloadEvent({ event })),
+    retryWhen((errors) =>
+      errors.pipe(
+        tap((e) => console.error(e)),
+        delayWhen((val) => timer(1000)),
+      ),
+    ),
   )
   .subscribe();
 
@@ -63,11 +82,19 @@ let buildAssetsSub = merge(
   .pipe(
     debounceTime(200),
     startWith('init'),
-    switchMap(() => build()),
-    catchError((e) => {
-      console.error(e);
-      return EMPTY;
-    }),
+    switchMap((event) =>
+      build(assetsBuildDefines).then((buildData) => ({
+        event,
+        buildData,
+      })),
+    ),
+    tap((data) => postLiveReloadEvent(data)),
+    retryWhen((errors) =>
+      errors.pipe(
+        tap((e) => console.error(e)),
+        delayWhen((val) => timer(1000)),
+      ),
+    ),
   )
   .subscribe();
 
