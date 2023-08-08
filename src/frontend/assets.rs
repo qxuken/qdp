@@ -86,13 +86,11 @@ pub async fn assets_route(
 
             if let Some(e_tag) = meta.e_tag(&asset_path) {
                 if IfNoneMatch::parse(&req)
-                    .ok()
                     .map(|h| match h {
                         IfNoneMatch::Any => vec![],
                         IfNoneMatch::Items(tags) => tags,
                     })
-                    .unwrap_or_default()
-                    .contains(&e_tag)
+                    .is_ok_and(|tags| tags.contains(&e_tag))
                 {
                     return HttpResponse::NotModified().finish();
                 }
@@ -100,7 +98,7 @@ pub async fn assets_route(
             }
 
             if let Some(http_date) = meta.last_modified(&asset_path) {
-                if IfModifiedSince::parse(&req).ok().map(|h| h.0) == Some(http_date) {
+                if IfModifiedSince::parse(&req).is_ok_and(|h| h.0 == http_date) {
                     return HttpResponse::NotModified().finish();
                 }
                 res.insert_header(LastModified(http_date));

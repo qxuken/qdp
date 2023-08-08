@@ -1,4 +1,3 @@
-use actix_cors::Cors;
 use actix_web::{
     middleware::{Compress, Logger, NormalizePath},
     web, App, HttpServer,
@@ -31,7 +30,6 @@ async fn main() -> std::io::Result<()> {
     database.run_migrations();
 
     // Frontend related params
-    let cors_permissive = env::var("APPLICATION_CORS_DISABLED").is_ok_and(|e| e == "true");
     let compression = Compress::default();
     let templates = web::Data::new(qdp::frontend::Templates::new(is_dev));
     let assets_metadata = web::Data::new(AssetsMetadataStore::boot(is_dev));
@@ -39,16 +37,10 @@ async fn main() -> std::io::Result<()> {
     log::info!("Starting on: http://{}:{:?}", host, port);
 
     HttpServer::new(move || {
-        let cors = if cors_permissive {
-            Cors::permissive()
-        } else {
-            Cors::default()
-        };
         App::new()
             .wrap(Logger::default().log_target("app"))
             .wrap(NormalizePath::trim())
             .wrap(compression.clone())
-            .wrap(cors)
             .app_data(database.clone())
             .app_data(templates.clone())
             .app_data(assets_metadata.clone())
