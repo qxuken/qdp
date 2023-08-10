@@ -1,4 +1,4 @@
-use crate::{Database, TemplateProps, Templates};
+use crate::{frontend::ScriptItem, Database, TemplateProps, Templates};
 use actix_web::{web, Responder, Result};
 use serde_json::{json, Map};
 
@@ -23,7 +23,7 @@ pub async fn links_page<'a>(
     props.data = Some(data);
     props
         .scripts
-        .push(("/entities/links/mod.js", Some("async")));
+        .push(ScriptItem::async_module("/entities/links/mod.js"));
 
     Ok(templates.handle("entities/links/links.hbs", Some(props)))
 }

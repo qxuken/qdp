@@ -4,6 +4,8 @@ mod stylesheet;
 use handlebars::{handlebars_helper, Handlebars};
 use serde_json::Value;
 
+pub use script::ScriptItem;
+
 handlebars_helper!(stringify: |v: Value| serde_json::to_string(&v).unwrap_or("[error]".to_string()));
 
 pub fn register_helpers(hb: &mut Handlebars) -> () {

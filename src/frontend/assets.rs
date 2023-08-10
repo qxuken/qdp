@@ -16,6 +16,8 @@ use rust_embed::RustEmbed;
 
 use crate::TemplateProps;
 
+use super::ScriptItem;
+
 pub const ASSETS_PREFIX: &'static str = "/assets";
 pub const ASSETS_PATH: &'static str = "/assets/{asset_path:.*}";
 
@@ -117,6 +119,6 @@ pub async fn assets_route(
 }
 
 pub fn register_assets(props: &mut TemplateProps) {
-    props.scripts.push(("/lib.js", Some("async")));
+    props.scripts.push(ScriptItem::async_module("/lib.js"));
     props.stylesheets.push("/lib.css");
 }

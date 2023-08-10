@@ -1,11 +1,13 @@
 use serde::Serialize;
 use serde_json::{Map, Value};
 
+use super::ScriptItem;
+
 #[derive(Clone, Default, Serialize)]
 pub struct TemplateProps {
     pub title: Option<&'static str>,
     pub data: Option<Map<String, Value>>,
-    pub scripts: Vec<(&'static str, Option<&'static str>)>,
+    pub scripts: Vec<ScriptItem>,
     pub stylesheets: Vec<&'static str>,
 }
 
