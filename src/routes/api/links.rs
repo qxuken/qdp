@@ -1,13 +1,12 @@
-use super::{
-    link_item::{LinkItem, NewLinkItem, UpdateLinkItem},
-    link_section::{LinkSection, NewLinkSection, UpdateLinkSection},
-    links_view::LinksView,
+use crate::entities::links::{
+    LinkItem, LinkSection, LinksView, NewLinkItem, NewLinkSection, UpdateLinkItem,
+    UpdateLinkSection,
 };
 use crate::Database;
 use actix_web::{delete, error, get, post, put, web, HttpResponse, Responder, Result, Scope};
 
 #[get("")]
-pub async fn links_data<'a>(database: web::Data<Database>) -> Result<impl Responder> {
+pub async fn links_data(database: web::Data<Database>) -> Result<impl Responder> {
     let data = web::block(move || {
         let mut conn = database.get_connection()?;
 

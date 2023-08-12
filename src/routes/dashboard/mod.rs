@@ -2,9 +2,9 @@ use crate::{frontend::ScriptItem, Database, TemplateProps, Templates};
 use actix_web::{web, Responder, Result};
 use serde_json::{json, Map};
 
-use super::links_view::LinksView;
+use crate::entities::links::LinksView;
 
-pub async fn links_page<'a>(
+pub async fn dashboard_route<'a>(
     templates: web::Data<Templates<'a>>,
     database: web::Data<Database>,
 ) -> Result<impl Responder> {
@@ -23,7 +23,7 @@ pub async fn links_page<'a>(
     props.data = Some(data);
     props
         .scripts
-        .push(ScriptItem::async_module("/entities/links/mod.js"));
+        .push(ScriptItem::async_module("/routes/dashboard/mod.js"));
 
-    Ok(templates.handle("entities/links/links.hbs", Some(props)))
+    Ok(templates.handle("routes/dashboard/mod.hbs", Some(props)))
 }
