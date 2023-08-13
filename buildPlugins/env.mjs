@@ -17,7 +17,7 @@ export default function env(variables) {
       }
 
       let envObject = Object.entries(variables).reduce((env, [key, value]) => {
-        env[`process.env.${key}`] = JSON.stringify(value);
+        env[key] = JSON.stringify(value);
         return env;
       }, {});
 

@@ -30,7 +30,9 @@ export function runLiveReloadServer(liveReloadPort) {
     response.writeHead(200, headers);
     response.flushHeaders();
 
-    response.write('init');
+    response.write(`id: ${randomUUID()}\n`);
+    response.write('event: init \n');
+    response.write(`data: Started at ${Date.now()} \n\n`);
 
     clients.add(response);
 
