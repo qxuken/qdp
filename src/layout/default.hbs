@@ -13,10 +13,10 @@
         {{ stylesheet stylesheet_url }}
     {{/each}}
   </head>
-  <body class="bg-black p-8 flex flex-col gap-4 h-screen">
+  <body class="bg-black p-8 flex flex-col gap-4 min-h-screen">
     {{> layout/header.hbs title=title }}
-    <main class="flex-grow overflow-auto">
-      {{> @partial-block data }}
+    <main class="flex-grow">
+      {{~> @partial-block data }}
     </main>
     {{> layout/footer.hbs }}
   </body>

@@ -1,6 +1,7 @@
 import 'htmx.org';
 import './styles/global.css';
+import { connectLiveReload } from './utils/liveReload.ts';
 
 if (APPLICATION_MODE === 'development' && typeof LIVE_RELOAD_URL === 'string') {
-  import('./utils/liveReload.ts').then(({ run }) => run());
+  connectLiveReload(LIVE_RELOAD_URL);
 }

@@ -1,7 +1,4 @@
-export function run() {
-  if (typeof LIVE_RELOAD_URL !== 'string') {
-    return;
-  }
-  let source = new EventSource(LIVE_RELOAD_URL, { withCredentials: true });
+export function connectLiveReload(sourceUrl: string) {
+  let source = new EventSource(sourceUrl, { withCredentials: true });
   source.addEventListener('update', () => location.reload());
 }
