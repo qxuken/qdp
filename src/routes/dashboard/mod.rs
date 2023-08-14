@@ -22,7 +22,7 @@ pub async fn dashboard_route<'a>(
     props.title = Some("Dashboard");
     props.data = Some(data);
     props
-        .scripts
+        .local_scripts
         .push(ScriptItem::async_module("/routes/dashboard/mod.js"));
 
     Ok(templates.handle("routes/dashboard/mod.hbs", Some(props)))

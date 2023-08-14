@@ -4,6 +4,7 @@ import chokidar from 'chokidar';
 import dotenv from 'dotenv';
 import { postLiveReloadEvent, runLiveReloadServer } from './dev.livereload.mjs';
 import {
+  of,
   fromEvent,
   debounceTime,
   merge,
@@ -13,12 +14,16 @@ import {
   retryWhen,
   delayWhen,
   timer,
+  retry,
+  map,
 } from 'rxjs';
 import { build } from './build.assets.mjs';
 
 dotenv.config();
 
 const LIVE_RELOAD_PORT = 5555;
+const BACKEND_PORT = process.env.APPLICATION_PORT ?? '8080';
+const HEALTHCHECK_URL = `http://localhost:${BACKEND_PORT}/api/health`;
 let assetsBuildDefines = {};
 
 if (process.env.APPLICATION_MODE === 'development') {
@@ -43,7 +48,14 @@ let handlebars = chokidar.watch(['src/**/*.hbs'], {
 });
 
 let assets = chokidar.watch(
-  ['src/**/*.{ts,css}', 'postcss.config.js', 'build.assets.mjs', 'tsconfig.json'],
+  [
+    'src/**/*.{ts,css}',
+    'public/**/*',
+    'postcss.config.js',
+    'tailwind.config.js',
+    'build.assets.mjs',
+    'tsconfig.json',
+  ],
   {
     ignoreInitial: true,
   },
@@ -63,6 +75,18 @@ let backSub = merge(
         stdio: ['inherit', 'inherit', 'inherit'],
       });
     }),
+    switchMap((event) =>
+      of('health check').pipe(
+        switchMap(() => fetch(HEALTHCHECK_URL)),
+        map((res) => {
+          if (!res.ok) {
+            throw new Error('backend is not ready');
+          }
+          return event;
+        }),
+        retry({ delay: 250 }),
+      ),
+    ),
     tap((event) => postLiveReloadEvent({ event })),
     retryWhen((errors) =>
       errors.pipe(

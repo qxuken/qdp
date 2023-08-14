@@ -5,6 +5,7 @@ use handlebars::{handlebars_helper, Handlebars};
 use serde_json::Value;
 
 pub use script::ScriptItem;
+pub use stylesheet::StylesheetItem;
 
 handlebars_helper!(stringify: |v: Value| serde_json::to_string(&v).unwrap_or("[error]".to_string()));
 
