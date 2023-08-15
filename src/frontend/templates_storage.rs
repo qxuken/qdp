@@ -7,7 +7,7 @@ use rust_embed::RustEmbed;
 #[include = "*.hbs"]
 pub struct TemplatesStorage;
 
-impl<'a> TemplatesStorage {
+impl TemplatesStorage {
     pub(super) fn project_root_names() -> Vec<(String, String)> {
         TemplatesStorage::iter()
             .map(|path| {

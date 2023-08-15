@@ -4,8 +4,8 @@ use serde_json::{json, Map};
 
 use crate::entities::links::LinksView;
 
-pub async fn dashboard_route<'a>(
-    templates: web::Data<Templates<'a>>,
+pub async fn dashboard_route(
+    templates: web::Data<Templates<'_>>,
     database: web::Data<Database>,
 ) -> Result<impl Responder> {
     let links = web::block(move || {
@@ -18,12 +18,12 @@ pub async fn dashboard_route<'a>(
     let mut data = Map::new();
     data.insert("links".to_owned(), json!(links));
 
-    let mut props = TemplateProps::default();
-    props.title = Some("Dashboard");
-    props.data = Some(data);
-    props
-        .local_scripts
-        .push(ScriptItem::async_module("/routes/dashboard/mod.js"));
+    let props = TemplateProps {
+        title: Some("Dashboard"),
+        data: Some(data),
+        local_scripts: vec![ScriptItem::async_module("/routes/dashboard/mod.js")],
+        ..TemplateProps::default()
+    };
 
     Ok(templates.handle("routes/dashboard/mod.hbs", Some(props)))
 }

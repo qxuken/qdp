@@ -29,7 +29,7 @@ impl Database {
         self.pool.get().map_err(|_| Error::DatabaseTimeout)
     }
 
-    pub fn run_migrations(&self) -> () {
+    pub fn run_migrations(&self) {
         let mut connection = self.get_connection().unwrap();
         log::info!("Running migrations");
         connection.run_pending_migrations(MIGRATIONS).unwrap();

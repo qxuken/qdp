@@ -1,16 +1,15 @@
+import esbuild from 'esbuild';
 import path from 'node:path';
 import { cwd, env } from 'node:process';
-import esbuild from 'esbuild';
 import { z } from 'zod';
-import { parseEnv } from 'znv';
 
 import postcssConfig from './postcss.config.js';
 
-import envPlugin from './buildPlugins/env.mjs';
 import clean from './buildPlugins/clean.mjs';
 import copy from './buildPlugins/copy.mjs';
-import searchModules from './buildPlugins/searchModules.mjs';
+import envPlugin from './buildPlugins/env.mjs';
 import postcss from './buildPlugins/postcss.mjs';
+import searchModules from './buildPlugins/searchModules.mjs';
 
 const SRC_PATH = 'src';
 const STATIC_PATH = 'public';
@@ -32,7 +31,7 @@ export function build(define = {}) {
 
   let rootDir = cwd();
 
-  let entryPoints = [path.join(SRC_PATH, 'lib.ts')].concat(
+  let entryPoints = [path.join(SRC_PATH, 'lib.ts'), path.join(SRC_PATH, 'utils', 'liveReload.ts')].concat(
     searchModules(rootDir, SRC_PATH),
   );
 

@@ -58,34 +58,34 @@ impl From<DieselError> for Error {
     }
 }
 
-impl Into<Error> for EntityError {
-    fn into(self) -> Error {
-        Error::EntityError(self)
+impl From<EntityError> for Error {
+    fn from(val: EntityError) -> Self {
+        Error::EntityError(val)
     }
 }
 
-impl<T> Into<Result<T, Error>> for EntityError {
-    fn into(self) -> Result<T, Error> {
-        Err(self.into())
+impl<T> From<EntityError> for Result<T, Error> {
+    fn from(val: EntityError) -> Self {
+        Err(val.into())
     }
 }
 
-impl Into<IOError> for EntityError {
-    fn into(self) -> IOError {
-        match self {
-            Self::NotFound => IOError::new(ErrorKind::NotFound, self.to_string()),
-            Self::BadData(e) => IOError::new(ErrorKind::InvalidData, e),
-            Self::Unknown(e) => IOError::new(ErrorKind::Other, e),
-            Self::Other(e) => IOError::new(ErrorKind::Other, e),
+impl From<EntityError> for IOError {
+    fn from(val: EntityError) -> Self {
+        match val {
+            EntityError::NotFound => IOError::new(ErrorKind::NotFound, val.to_string()),
+            EntityError::BadData(e) => IOError::new(ErrorKind::InvalidData, e),
+            EntityError::Unknown(e) => IOError::new(ErrorKind::Other, e),
+            EntityError::Other(e) => IOError::new(ErrorKind::Other, e),
         }
     }
 }
 
-impl Into<IOError> for Error {
-    fn into(self) -> IOError {
-        match self {
-            Self::EntityError(e) => e.into(),
-            Self::DatabaseTimeout => IOError::new(ErrorKind::TimedOut, self.to_string()),
+impl From<Error> for IOError {
+    fn from(val: Error) -> Self {
+        match val {
+            Error::EntityError(e) => e.into(),
+            Error::DatabaseTimeout => IOError::new(ErrorKind::TimedOut, val.to_string()),
         }
     }
 }

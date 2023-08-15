@@ -18,8 +18,8 @@ use crate::TemplateProps;
 
 use super::{ScriptItem, StylesheetItem};
 
-pub const ASSETS_PREFIX: &'static str = "/assets";
-pub const ASSETS_PATH: &'static str = "/assets/{asset_path:.*}";
+pub const ASSETS_PREFIX: &str = "/assets";
+pub const ASSETS_PATH: &str = "/assets/{asset_path:.*}";
 
 #[derive(RustEmbed)]
 #[folder = "./dist"]
@@ -54,13 +54,13 @@ impl AssetsMetadataStore {
                 },
             );
         }
-        return store;
+        store
     }
 
     pub fn e_tag(&self, asset_path: &str) -> Option<EntityTag> {
         match self.map.get(asset_path) {
             Some(meta) => meta.e_tag.clone(),
-            None => Assets::get(&asset_path)
+            None => Assets::get(asset_path)
                 .map(|content| hex::encode(content.metadata.sha256_hash()))
                 .map(EntityTag::new_weak),
         }
@@ -68,8 +68,8 @@ impl AssetsMetadataStore {
 
     pub fn last_modified(&self, asset_path: &str) -> Option<HttpDate> {
         match self.map.get(asset_path) {
-            Some(meta) => meta.last_modified.clone(),
-            None => Assets::get(&asset_path)
+            Some(meta) => meta.last_modified,
+            None => Assets::get(asset_path)
                 .and_then(|content| content.metadata.last_modified())
                 .map(|lm| UNIX_EPOCH + Duration::from_secs(lm))
                 .map(HttpDate::from),
@@ -118,10 +118,15 @@ pub async fn assets_route(
     }
 }
 
-pub fn register_assets(props: &mut TemplateProps) {
+pub fn register_assets(props: &mut TemplateProps, is_dev: bool) {
     props
         .global_scripts
         .push(ScriptItem::async_module("/lib.js"));
+    if is_dev {
+        props
+            .global_scripts
+            .push(ScriptItem::async_module("/utils/liveReload.js"));
+    }
     props.stylesheets.push(StylesheetItem::style("/lib.css"));
     props
         .stylesheets

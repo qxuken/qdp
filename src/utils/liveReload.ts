@@ -1,4 +1,4 @@
-export function connectLiveReload(sourceUrl: string) {
+function connectLiveReload(sourceUrl: string) {
   let connected = false;
   let source = new EventSource(sourceUrl, { withCredentials: true });
   source.addEventListener('init', () => {
@@ -8,4 +8,8 @@ export function connectLiveReload(sourceUrl: string) {
     connected = true;
   });
   source.addEventListener('update', () => location.reload());
+}
+
+if (APPLICATION_MODE === 'development' && typeof LIVE_RELOAD_URL === 'string') {
+  connectLiveReload(LIVE_RELOAD_URL);
 }

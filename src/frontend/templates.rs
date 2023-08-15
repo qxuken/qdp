@@ -34,9 +34,11 @@ impl<'a> Templates<'a> {
             registry.get_templates().keys()
         );
 
-        let mut global_props = TemplateProps::default();
-        global_props.title = Some("QDP");
-        register_assets(&mut global_props);
+        let mut global_props = TemplateProps {
+            title: Some("QDP"),
+            ..TemplateProps::default()
+        };
+        register_assets(&mut global_props, is_dev);
 
         Templates {
             registry,

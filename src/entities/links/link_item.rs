@@ -169,7 +169,7 @@ impl LinkItem {
             let max_possible_order_number =
                 Self::max_possible_order_number(connection, &section_id)?;
 
-            let order_num = data.order_number.unwrap_or_else(|| {
+            let order_num = data.order_number.unwrap_or({
                 if self.order_number > max_possible_order_number {
                     max_possible_order_number
                 } else {
