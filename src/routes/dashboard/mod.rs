@@ -1,19 +1,24 @@
-use crate::{frontend::ScriptItem, Database, TemplateProps, Templates};
-use actix_web::{web, Responder, Result};
+use crate::{
+    frontend::{HtmlTemplate, ScriptItem, TemplateProps},
+    SharedAppState,
+};
+use askama::Template;
+use axum::extract::State;
 use serde_json::{json, Map};
 
-use crate::entities::links::LinksView;
+use crate::{entities::links::LinksView, result::Result};
+#[derive(Template, Default)]
+#[template(path = "routes/dashboard/page.html")]
+pub struct HelloTemplate {
+    pub data: &'static str,
+}
 
 pub async fn dashboard_route(
-    templates: web::Data<Templates<'_>>,
-    database: web::Data<Database>,
-) -> Result<impl Responder> {
-    let links = web::block(move || {
-        let mut conn = database.get_connection()?;
+    State(app_state): State<SharedAppState>,
+) -> Result<HtmlTemplate<HelloTemplate>> {
+    let mut conn = app_state.db.get_connection()?;
 
-        LinksView::query(&mut conn)
-    })
-    .await??;
+    let links = LinksView::query(&mut conn)?;
 
     let mut data = Map::new();
     data.insert("links".to_owned(), json!(links));
@@ -25,5 +30,7 @@ pub async fn dashboard_route(
         ..TemplateProps::default()
     };
 
-    Ok(templates.handle("routes/dashboard/mod.hbs", Some(props)))
+    println!("{:?}", props);
+
+    Ok(HtmlTemplate(HelloTemplate { data: "data2" }))
 }

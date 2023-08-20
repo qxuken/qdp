@@ -1,4 +1,4 @@
-use actix_web::{http::StatusCode, HttpResponse, HttpResponseBuilder, ResponseError};
+use axum::{http::StatusCode, response::IntoResponse};
 use diesel::result::Error as DieselError;
 use std::{
     fmt,
@@ -90,18 +90,16 @@ impl From<Error> for IOError {
     }
 }
 
-impl ResponseError for Error {
-    fn status_code(&self) -> StatusCode {
-        match self {
+impl IntoResponse for Error {
+    fn into_response(self) -> axum::response::Response {
+        let resp_data = self.to_string();
+        let status_code = match self {
             Self::EntityError(EntityError::NotFound) => StatusCode::NOT_FOUND,
             Self::EntityError(EntityError::BadData(_)) => StatusCode::BAD_REQUEST,
             Self::EntityError(EntityError::Unknown(_)) => StatusCode::INTERNAL_SERVER_ERROR,
             Self::EntityError(EntityError::Other(_)) => StatusCode::INTERNAL_SERVER_ERROR,
             Self::DatabaseTimeout => StatusCode::INTERNAL_SERVER_ERROR,
-        }
-    }
-
-    fn error_response(&self) -> HttpResponse {
-        HttpResponseBuilder::new(self.status_code()).json(self.to_string())
+        };
+        (status_code, resp_data).into_response()
     }
 }

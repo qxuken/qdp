@@ -2,133 +2,106 @@ use crate::entities::links::{
     LinkItem, LinkSection, LinksView, NewLinkItem, NewLinkSection, UpdateLinkItem,
     UpdateLinkSection,
 };
-use crate::Database;
-use actix_web::{delete, error, get, post, put, web, HttpResponse, Responder, Result, Scope};
+use crate::{result::Result, SharedAppState};
+use axum::extract::Path;
+use axum::Json;
+use axum::{
+    extract::State,
+    http::StatusCode,
+    routing::{get, post, put},
+    Router,
+};
 
-#[get("")]
-pub async fn links_data(database: web::Data<Database>) -> Result<impl Responder> {
-    let data = web::block(move || {
-        let mut conn = database.get_connection()?;
+async fn links_data(State(app_state): State<SharedAppState>) -> Result<Json<Vec<LinksView>>> {
+    let mut conn = app_state.db.get_connection()?;
 
-        LinksView::query(&mut conn)
-    })
-    .await?
-    .map_err(error::ErrorBadRequest)?;
+    let data = LinksView::query(&mut conn)?;
 
-    Ok(HttpResponse::Ok().json(data))
+    Ok(Json(data))
 }
 
-#[post("/section")]
 async fn create_section(
-    database: web::Data<Database>,
-    data: web::Json<NewLinkSection>,
-) -> Result<impl Responder> {
-    let data = web::block(move || {
-        let mut conn = database.get_connection()?;
+    State(app_state): State<SharedAppState>,
+    Json(data): Json<NewLinkSection>,
+) -> Result<(StatusCode, Json<LinkSection>)> {
+    let mut conn = app_state.db.get_connection()?;
 
-        LinkSection::create(&mut conn, data.into_inner())
-    })
-    .await??;
+    let data = LinkSection::create(&mut conn, data)?;
 
-    Ok(HttpResponse::Created().json(data))
+    Ok((StatusCode::CREATED, Json(data)))
 }
 
-#[put("/section/{id}")]
 async fn update_section(
-    database: web::Data<Database>,
-    section_id: web::Path<i32>,
-    data: web::Json<UpdateLinkSection>,
-) -> Result<impl Responder> {
-    let data = web::block(move || {
-        let mut conn = database.get_connection()?;
+    State(app_state): State<SharedAppState>,
+    Path(section_id): Path<i32>,
+    Json(data): Json<UpdateLinkSection>,
+) -> Result<Json<LinkSection>> {
+    let mut conn = app_state.db.get_connection()?;
 
-        let section = LinkSection::find_by_id(&mut conn, &section_id.into_inner())?;
+    let section = LinkSection::find_by_id(&mut conn, &section_id)?;
 
-        section.update(&mut conn, &data.into_inner())
-    })
-    .await??;
+    let data = section.update(&mut conn, &data)?;
 
-    Ok(HttpResponse::Ok().json(data))
+    Ok(Json(data))
 }
 
-#[delete("/section/{id}")]
 async fn delete_section(
-    database: web::Data<Database>,
-    section_id: web::Path<i32>,
-) -> Result<impl Responder> {
-    web::block(move || {
-        let mut conn = database.get_connection()?;
+    State(app_state): State<SharedAppState>,
+    Path(section_id): Path<i32>,
+) -> Result<StatusCode> {
+    let mut conn = app_state.db.get_connection()?;
 
-        let section = LinkSection::find_by_id(&mut conn, &section_id.into_inner())?;
+    let section = LinkSection::find_by_id(&mut conn, &section_id)?;
 
-        section.delete(&mut conn)
-    })
-    .await??;
+    section.delete(&mut conn)?;
 
-    Ok(HttpResponse::NoContent())
+    Ok(StatusCode::NO_CONTENT)
 }
 
-#[post("/item")]
 async fn create_item(
-    database: web::Data<Database>,
-    data: web::Json<NewLinkItem>,
-) -> Result<impl Responder> {
-    let data = web::block(move || {
-        let mut conn = database.get_connection()?;
+    State(app_state): State<SharedAppState>,
+    Json(data): Json<NewLinkItem>,
+) -> Result<(StatusCode, Json<LinkItem>)> {
+    let mut conn = app_state.db.get_connection()?;
 
-        LinkSection::find_by_id(&mut conn, &data.link_section_id)?;
-        LinkItem::create(&mut conn, data.into_inner())
-    })
-    .await??;
+    LinkSection::find_by_id(&mut conn, &data.link_section_id)?;
+    let data = LinkItem::create(&mut conn, data)?;
 
-    Ok(HttpResponse::Created().json(data))
+    Ok((StatusCode::CREATED, Json(data)))
 }
 
-#[put("/item/{id}")]
 async fn update_item(
-    database: web::Data<Database>,
-    item_id: web::Path<i32>,
-    data: web::Json<UpdateLinkItem>,
-) -> Result<impl Responder> {
-    let data = web::block(move || {
-        let mut conn = database.get_connection()?;
+    State(app_state): State<SharedAppState>,
+    Path(item_id): Path<i32>,
+    Json(data): Json<UpdateLinkItem>,
+) -> Result<Json<LinkItem>> {
+    let mut conn = app_state.db.get_connection()?;
 
-        if let Some(link_section_id) = data.link_section_id {
-            LinkSection::find_by_id(&mut conn, &link_section_id)?;
-        }
-        let item = LinkItem::find_by_id(&mut conn, &item_id)?;
-        item.update(&mut conn, data.into_inner())
-    })
-    .await?
-    .map_err(error::ErrorBadRequest)?;
-
-    Ok(HttpResponse::Ok().json(data))
+    if let Some(link_section_id) = data.link_section_id {
+        LinkSection::find_by_id(&mut conn, &link_section_id)?;
+    }
+    let item = LinkItem::find_by_id(&mut conn, &item_id)?;
+    let data = item.update(&mut conn, data)?;
+    Ok(Json(data))
 }
 
-#[delete("/item/{id}")]
 async fn delete_item(
-    database: web::Data<Database>,
-    item_id: web::Path<i32>,
-) -> Result<impl Responder> {
-    web::block(move || {
-        let mut conn = database.get_connection()?;
+    State(app_state): State<SharedAppState>,
+    Path(item_id): Path<i32>,
+) -> Result<StatusCode> {
+    let mut conn = app_state.db.get_connection()?;
 
-        let item = LinkItem::find_by_id(&mut conn, &item_id)?;
-        item.delete(&mut conn)
-    })
-    .await?
-    .map_err(error::ErrorBadRequest)?;
+    let item = LinkItem::find_by_id(&mut conn, &item_id)?;
+    item.delete(&mut conn)?;
 
-    Ok(HttpResponse::NoContent())
+    Ok(StatusCode::NO_CONTENT)
 }
 
-pub fn mount_scope(route: &str) -> Scope {
-    web::scope(route)
-        .service(links_data)
-        .service(create_section)
-        .service(update_section)
-        .service(delete_section)
-        .service(create_item)
-        .service(update_item)
-        .service(delete_item)
+pub fn links_router() -> Router<SharedAppState> {
+    Router::new()
+        .route("/", get(links_data))
+        .route("/section", post(create_section))
+        .route("/section/:id", put(update_section).delete(delete_section))
+        .route("/item", post(create_item))
+        .route("/item/:id", put(update_item).delete(delete_item))
 }

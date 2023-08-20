@@ -1,0 +1,25 @@
+{% import "templates/macro/script.html" as script -%}
+{% import "templates/macro/style.html" as style -%}
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="shortcut icon" href="/favicon.svg" type="image/x-icon" />
+    {%if title %}
+    <title>{{title}}</title>
+    {% endif %}
+    {% for sc in global_script %}
+      {% call script::script(sc) %}
+    {% endfor %}
+    {% for st in stylesheets %}
+      {% call style::style(st) %}
+    {% endfor %}
+  </head>
+  <body class="bg-black px-4 pt-2 pb-1 flex flex-col gap-4 min-h-screen">
+    {{> layout/header.hbs title=title }}
+    <main class="flex-grow">{{~> @partial-block data }}</main>
+    {{> layout/footer.hbs }} {{#each local_scripts as |sc|}} {{ script sc }} {{/each}}
+  </body>
+</html>

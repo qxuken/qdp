@@ -8,11 +8,9 @@ use diesel_migrations::{embed_migrations, MigrationHarness};
 
 pub const MIGRATIONS: EmbeddedMigrations = embed_migrations!("./migrations");
 
-pub type DatabasePool = Pool<ConnectionManager<SqliteConnection>>;
-
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub struct Database {
-    pool: DatabasePool,
+    pool: Pool<ConnectionManager<SqliteConnection>>,
 }
 
 impl Database {

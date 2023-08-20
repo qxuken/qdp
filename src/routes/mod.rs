@@ -1,15 +1,16 @@
 mod api;
+mod assets;
 mod dashboard;
 
-use actix_web::{web, Scope};
+use axum::{routing::get, Router};
 
-use crate::frontend::{self, assets_route};
+use crate::{frontend, SharedAppState};
 
-use self::dashboard::dashboard_route;
+use self::{api::create_api_router, assets::assets_route, dashboard::dashboard_route};
 
-pub fn mount(path: &str) -> Scope {
-    web::scope(path)
-        .route("/", web::get().to(dashboard_route))
-        .service(api::mount_api("/api"))
-        .route(frontend::ASSETS_PATH, web::get().to(assets_route))
+pub fn create_router() -> Router<SharedAppState> {
+    Router::new()
+        .nest("/api", create_api_router())
+        .route("/", get(dashboard_route))
+        .route(frontend::ASSETS_PATH, get(assets_route))
 }

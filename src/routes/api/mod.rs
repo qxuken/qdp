@@ -1,12 +1,14 @@
 mod health;
 mod links;
 
-use actix_web::{web, Scope};
+use axum::{routing::get, Router};
 
-use self::health::health_route;
+use crate::SharedAppState;
 
-pub fn mount_api(path: &str) -> Scope {
-    web::scope(path)
-        .route("/health", web::get().to(health_route))
-        .service(links::mount_scope("/links"))
+use self::{health::health_route, links::links_router};
+
+pub fn create_api_router() -> Router<SharedAppState> {
+    Router::new()
+        .route("/health", get(health_route))
+        .nest("/links", links_router())
 }

@@ -1,0 +1,7 @@
+{% macro style(st) %}
+  {%- let url = "st.absolute_url()" -%}
+  {% if st.preload %}
+    <link rel="preload" href="{{url}}" as="style"/>
+  {% endif %}
+  <link rel="stylesheet" href="{{url}}" />
+{% endmacro %}

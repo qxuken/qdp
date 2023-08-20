@@ -3,7 +3,7 @@ use serde_json::{Map, Value};
 
 use super::{ScriptItem, StylesheetItem};
 
-#[derive(Clone, Default, Serialize)]
+#[derive(Debug, Clone, Default, Serialize)]
 pub struct TemplateProps {
     pub title: Option<&'static str>,
     pub data: Option<Map<String, Value>>,
