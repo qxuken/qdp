@@ -1,45 +1,38 @@
-use std::sync::Arc;
-
-use crate::{
-    app_state,
-    frontend::{Assets, AssetsMetadataStore},
-    SharedAppState,
-};
+use crate::{frontend::Assets, SharedAppState};
 use axum::{
-    body::Bytes,
     extract::{Path, State},
-    headers::{ContentType, ETag, LastModified},
-    http::HeaderMap,
     http::{
-        header::{CONTENT_TYPE, ETAG, LAST_MODIFIED},
-        StatusCode,
+        header::{
+            CACHE_CONTROL, CONTENT_TYPE, ETAG, IF_MODIFIED_SINCE, IF_NONE_MATCH, LAST_MODIFIED,
+        },
+        HeaderMap, StatusCode,
     },
     response::{IntoResponse, Response},
-    routing::{get, post, put},
-    Json, Router, TypedHeader,
 };
 
-pub struct StaticFile(
-    String,
-    Option<TypedHeader<ETag>>,
-    Option<TypedHeader<LastModified>>,
-    SharedAppState,
-);
+pub struct StaticFile(String, Option<String>, Option<String>, SharedAppState);
 
 impl IntoResponse for StaticFile {
     fn into_response(self) -> Response {
-        let StaticFile(path, etag, last_modified, app_state) = self;
+        let StaticFile(path, if_none_match, if_modified_since, app_state) = self;
 
         match Assets::get(&path) {
             Some(content) => {
-                let mut headers = HeaderMap::new();
-                headers.insert(CONTENT_TYPE, content.metadata.mimetype().parse().unwrap());
+                let mut headers = HeaderMap::with_capacity(4);
                 if let Some(etag) = app_state.assets_metadata.e_tag(&path) {
+                    if if_none_match.is_some_and(|v| v == etag) {
+                        return StatusCode::NOT_MODIFIED.into_response();
+                    }
                     headers.insert(ETAG, etag.parse().unwrap());
                 }
                 if let Some(last_modified) = app_state.assets_metadata.last_modified(&path) {
-                    headers.insert(LAST_MODIFIED, String::from(TypedHeader(last_modified)));
+                    if if_modified_since.is_some_and(|v| v == last_modified) {
+                        return StatusCode::NOT_MODIFIED.into_response();
+                    }
+                    headers.insert(LAST_MODIFIED, last_modified.parse().unwrap());
                 }
+                headers.insert(CACHE_CONTROL, "no-cache".parse().unwrap());
+                headers.insert(CONTENT_TYPE, content.metadata.mimetype().parse().unwrap());
                 (headers, content.data).into_response()
             }
             None => (StatusCode::NOT_FOUND, "404 Not Found").into_response(),
@@ -50,54 +43,17 @@ impl IntoResponse for StaticFile {
 #[axum_macros::debug_handler]
 pub async fn assets_route(
     headers: HeaderMap,
-    last_modified: Option<TypedHeader<LastModified>>,
-    etag: Option<TypedHeader<ETag>>,
-    Path(params): Path<String>,
+    Path(path): Path<String>,
     State(app_state): State<SharedAppState>,
 ) -> StaticFile {
-    let last_modified2 = headers.get("LastModified");
-    let etag2 = headers.get("ETag");
-    println!("{params}");
-    println!("{last_modified:?}");
-    println!("{last_modified2:?}");
-    println!("{etag:?}");
-    println!("{etag2:?}");
-    println!("{app_state:?}");
+    let if_none_match = headers
+        .get(IF_NONE_MATCH)
+        .and_then(|h| h.to_str().ok())
+        .map(|v| v.to_owned());
+    let if_modified_since = headers
+        .get(IF_MODIFIED_SINCE)
+        .and_then(|h| h.to_str().ok())
+        .map(|v| v.to_owned());
 
-    StaticFile(params, etag, last_modified, app_state)
+    StaticFile(path, if_none_match, if_modified_since, app_state)
 }
-
-// match Assets::get(&asset_path) {
-//   Some(content) => {
-//       let mut res = HttpResponse::Ok();
-
-//       if let Some(e_tag) = meta.e_tag(&asset_path) {
-//           if IfNoneMatch::parse(&req)
-//               .map(|h| match h {
-//                   IfNoneMatch::Any => vec![],
-//                   IfNoneMatch::Items(tags) => tags,
-//               })
-//               .is_ok_and(|tags| tags.contains(&e_tag))
-//           {
-//               return HttpResponse::NotModified().finish();
-//           }
-//           res.insert_header(ETag(e_tag));
-//       }
-
-//       if let Some(http_date) = meta.last_modified(&asset_path) {
-//           if IfModifiedSince::parse(&req).is_ok_and(|h| h.0 == http_date) {
-//               return HttpResponse::NotModified().finish();
-//           }
-//           res.insert_header(LastModified(http_date));
-//       }
-
-//       res.content_type(content.metadata.mimetype());
-//       res.append_header(CacheControl(vec![
-//           CacheDirective::Public,
-//           CacheDirective::NoCache,
-//       ]));
-
-//       res.body(content.data.into_owned())
-//   }
-//   None => HttpResponse::NotFound().body("404 Not Found"),
-// }

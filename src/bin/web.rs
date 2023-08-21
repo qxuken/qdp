@@ -2,6 +2,7 @@ use dotenv::dotenv;
 use env_logger::Env;
 use qdp::{routes::create_router, AppState, Database};
 use std::env;
+use tower_http::compression::CompressionLayer;
 
 #[tokio::main]
 async fn main() {
@@ -34,7 +35,8 @@ async fn main() {
 
     log::info!("Starting on: http://{:?}", &addr);
 
-    let app = create_router().with_state(app_state);
+    let compression = CompressionLayer::new();
+    let app = create_router().with_state(app_state).layer(compression);
     axum::Server::bind(&addr)
         .serve(app.into_make_service())
         .await

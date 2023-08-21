@@ -1,17 +1,17 @@
+use chrono::offset::Utc;
+use chrono::DateTime;
 use std::{
     borrow::Cow,
     collections::HashMap,
     time::{Duration, UNIX_EPOCH},
 };
 
-use axum::headers::LastModified;
-
 use super::Assets;
 
 #[derive(Debug, Clone)]
 pub struct AssetsMetadata {
     e_tag: String,
-    last_modified: LastModified,
+    last_modified: String,
 }
 
 #[derive(Debug, Clone)]
@@ -54,15 +54,16 @@ impl AssetsMetadataStore {
             })
     }
 
-    pub fn last_modified(&self, asset_path: &str) -> Option<LastModified> {
+    pub fn last_modified(&self, asset_path: &str) -> Option<String> {
         self.map
             .get(asset_path)
-            .map(|d| d.last_modified)
+            .map(|d| d.last_modified.clone())
             .or_else(|| {
                 Assets::get(asset_path)
                     .and_then(|content| content.metadata.last_modified())
                     .map(|lm| UNIX_EPOCH + Duration::from_secs(lm))
-                    .map(LastModified::from)
+                    .map(|st| st.into())
+                    .map(|dt: DateTime<Utc>| dt.format("%a, %e %b %T %Y %T GMT").to_string())
             })
     }
 }
