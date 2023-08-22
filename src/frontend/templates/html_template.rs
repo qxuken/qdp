@@ -1,8 +1,9 @@
-use askama::Template;
+use askama::{Error, Template};
 use axum::{
-    http::StatusCode,
-    response::{Html, IntoResponse, Response},
+    http::{header, HeaderValue, StatusCode},
+    response::{IntoResponse, Response},
 };
+use html_minifier::HTMLMinifier;
 
 pub struct HtmlTemplate<T>(pub T);
 
@@ -11,8 +12,28 @@ where
     T: Template,
 {
     fn into_response(self) -> Response {
-        match self.0.render() {
-            Ok(html) => Html(html).into_response(),
+        let mut minifier = HTMLMinifier::new();
+        match self
+            .0
+            .render()
+            .and_then(|html| minifier.digest(html).map_err(|e| Error::Custom(e.into())))
+            .map(|_| minifier.get_html().to_vec())
+            .and_then(|html_vec| String::from_utf8(html_vec).map_err(|e| Error::Custom(e.into())))
+        {
+            Ok(html) => (
+                [
+                    (
+                        header::CONTENT_TYPE,
+                        HeaderValue::from_static("text/html; charset=utf-8"),
+                    ),
+                    (
+                        header::CACHE_CONTROL,
+                        HeaderValue::from_static("max-age:300, private"),
+                    ),
+                ],
+                html,
+            )
+                .into_response(),
             Err(err) => (
                 StatusCode::INTERNAL_SERVER_ERROR,
                 format!("Failed to render template. Error: {}", err),

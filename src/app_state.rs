@@ -10,6 +10,7 @@ use crate::{
 
 #[derive(Debug, Clone)]
 pub struct AppState {
+    pub is_dev: bool,
     pub db: Database,
     pub assets_metadata: AssetsMetadataStore,
     pub global_scripts: ScriptItemsTemplate,
@@ -34,6 +35,7 @@ impl AppState {
         let assets_metadata = AssetsMetadataStore::new(is_dev);
 
         Self {
+            is_dev,
             db,
             assets_metadata,
             global_scripts: global_scripts.into(),

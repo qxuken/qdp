@@ -6,8 +6,11 @@
   "files.associations": {
     "*.html": "jinja-html"
   },
-  "[jinja-html]": {
-    "editor.formatOnSave": false
+  "emmet.includeLanguages": {
+      "jinja-html": "html"
+    },
+  "tailwindCSS.includeLanguages": {
+      "jinja-html": "html"
   },
   "tailwindCSS.emmetCompletions": true,
 }

@@ -40,3 +40,5 @@ tower-http = { version = "0.4.3", features = [
   "compression-zstd",
 ] }
 chrono = { version = "0.4.26", features = ["serde"] }
+html-minifier = { version = "4.0.0" }
+once_cell = { version = "1.18.0" }
