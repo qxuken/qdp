@@ -1,36 +1,29 @@
+mod dashboard_page_template;
+
 use crate::{
-    frontend::{HtmlTemplate, ScriptItem, TemplateProps},
+    entities::links::LinksView,
+    frontend::{HtmlTemplate, ScriptItem},
+    result::Result,
     SharedAppState,
 };
-use askama::Template;
 use axum::extract::State;
-use serde_json::{json, Map};
-
-use crate::{entities::links::LinksView, result::Result};
-#[derive(Template, Default)]
-#[template(path = "routes/dashboard/page.html")]
-pub struct HelloTemplate {
-    pub data: &'static str,
-}
+use dashboard_page_template::DashboardPageTemplate;
 
 pub async fn dashboard_route(
     State(app_state): State<SharedAppState>,
-) -> Result<HtmlTemplate<HelloTemplate>> {
+) -> Result<HtmlTemplate<DashboardPageTemplate>> {
     let mut conn = app_state.db.get_connection()?;
 
     let links = LinksView::query(&mut conn)?;
 
-    let mut data = Map::new();
-    data.insert("links".to_owned(), json!(links));
-
-    let props = TemplateProps {
-        title: Some("Dashboard"),
-        data: Some(data),
-        local_scripts: vec![ScriptItem::async_module("/routes/dashboard/mod.js")],
-        ..TemplateProps::default()
+    let template = DashboardPageTemplate {
+        title: "QDP - Dashboard",
+        data: "data",
+        links: links.into(),
+        global_scripts: app_state.global_scripts.clone(),
+        stylesheets: app_state.stylesheets.clone(),
+        local_scripts: vec![ScriptItem::async_module("/routes/dashboard/mod.js")].into(),
     };
 
-    println!("{:?}", props);
-
-    Ok(HtmlTemplate(HelloTemplate { data: "data2" }))
+    Ok(HtmlTemplate(template))
 }

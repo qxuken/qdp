@@ -1,8 +1,7 @@
-use serde::{Deserialize, Serialize};
-
 use crate::frontend::ASSETS_PREFIX;
+use askama::Template;
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone)]
 pub struct ScriptItem {
     url: &'static str,
     modificator: Option<&'static str>,
@@ -28,5 +27,25 @@ impl ScriptItem {
 
     pub fn absolute_url(&self) -> String {
         format!("{}{}", ASSETS_PREFIX, self.url)
+    }
+
+    pub fn modificator(&self) -> &'static str {
+        self.modificator.unwrap_or("")
+    }
+
+    pub fn is_module(&self) -> bool {
+        self.module
+    }
+}
+
+#[derive(Template, Debug, Clone, Default)]
+#[template(path = "frontend/templates/script_item.html", escape = "none")]
+pub struct ScriptItemsTemplate {
+    items: Vec<ScriptItem>,
+}
+
+impl From<Vec<ScriptItem>> for ScriptItemsTemplate {
+    fn from(value: Vec<ScriptItem>) -> Self {
+        ScriptItemsTemplate { items: value }
     }
 }

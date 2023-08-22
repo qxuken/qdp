@@ -1,0 +1,4 @@
+{% for item in items %}
+  <script {{ item.modificator() }} {% if item.is_module() %} type="module" {% endif %} src="{{item.absolute_url()}}"></script>
+{% endfor %}
+

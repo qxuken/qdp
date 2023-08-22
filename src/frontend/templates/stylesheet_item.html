@@ -1,0 +1,10 @@
+{% for item in items %}
+  {%- let url = item.absolute_url() -%}
+
+  {% if item.is_preload() %}
+    <link rel="preload" href="{{url}}" as="style" />
+  {% endif %}
+
+  <link rel="stylesheet" href="{{url}}" />
+{% endfor %}
+

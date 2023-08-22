@@ -8,7 +8,7 @@ use axum::Json;
 use axum::{
     extract::State,
     http::StatusCode,
-    routing::{get, post, put},
+    routing::{get, post, patch},
     Router,
 };
 
@@ -101,7 +101,7 @@ pub fn links_router() -> Router<SharedAppState> {
     Router::new()
         .route("/", get(links_data))
         .route("/section", post(create_section))
-        .route("/section/:id", put(update_section).delete(delete_section))
+        .route("/section/:id", patch(update_section).delete(delete_section))
         .route("/item", post(create_item))
-        .route("/item/:id", put(update_item).delete(delete_item))
+        .route("/item/:id", patch(update_item).delete(delete_item))
 }

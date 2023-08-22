@@ -1,3 +1,0 @@
-{% macro script(sc) %}
-  <script {% if sc.modificator %} {{ modificator }} {% endif %} {% if sc.module %} type="module" {% endif %} src="{{sc.absolute_url()}}"></script>
-{% endmacro %}

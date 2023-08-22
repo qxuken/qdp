@@ -1,16 +1,19 @@
 use std::sync::Arc;
 
 use crate::{
-    frontend::{AssetsMetadataStore, ScriptItem, StylesheetItem},
+    frontend::{
+        AssetsMetadataStore, ScriptItem, ScriptItemsTemplate, StylesheetItem,
+        StylesheetItemsTemplate,
+    },
     Database,
 };
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct AppState {
     pub db: Database,
     pub assets_metadata: AssetsMetadataStore,
-    pub global_scripts: Vec<ScriptItem>,
-    pub stylesheets: Vec<StylesheetItem>,
+    pub global_scripts: ScriptItemsTemplate,
+    pub stylesheets: StylesheetItemsTemplate,
 }
 
 pub type SharedAppState = Arc<AppState>;
@@ -33,8 +36,8 @@ impl AppState {
         Self {
             db,
             assets_metadata,
-            global_scripts,
-            stylesheets,
+            global_scripts: global_scripts.into(),
+            stylesheets: stylesheets.into(),
         }
     }
 

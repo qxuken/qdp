@@ -17,7 +17,6 @@ rust-embed = { version = "6.8.1", features = [
   "compression",
   "mime-guess",
 ] }
-handlebars = { version = "4.3.7", features = ["rust-embed"] }
 diesel = { version = "2.1.0", features = [
   "sqlite",
   "r2d2",

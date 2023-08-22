@@ -1,3 +1,2 @@
 [general]
 dirs = ["src"]
-whitespace = "preserve"

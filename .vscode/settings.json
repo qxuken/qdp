@@ -3,11 +3,11 @@
     "outdir",
     "Stylesheet"
   ],
-  "emmet.includeLanguages": {
-      "Handlebars": "html"
-    },
-  "tailwindCSS.includeLanguages": {
-      "Handlebars": "html"
+  "files.associations": {
+    "*.html": "jinja-html"
+  },
+  "[jinja-html]": {
+    "editor.formatOnSave": false
   },
   "tailwindCSS.emmetCompletions": true,
 }

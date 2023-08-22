@@ -39,11 +39,11 @@ let env = chokidar.watch(['.env'], {
   ignoreInitial: true,
 });
 
-let back = chokidar.watch(['src/**/*.rs', 'cargo.toml'], {
+let back = chokidar.watch(['src/**/*.rs', 'cargo.toml', 'askama.toml'], {
   ignoreInitial: true,
 });
 
-let handlebars = chokidar.watch(['src/**/*.hbs'], {
+let templates = chokidar.watch(['src/**/*.html'], {
   ignoreInitial: true,
 });
 
@@ -64,7 +64,7 @@ let assets = chokidar.watch(
 let backSub = merge(
   fromEvent(env, 'change'),
   fromEvent(back, 'change'),
-  fromEvent(handlebars, 'add'),
+  fromEvent(templates, 'change'),
 )
   .pipe(
     debounceTime(200),
@@ -101,7 +101,7 @@ let buildAssetsSub = merge(
   fromEvent(env, 'change'),
   fromEvent(assets, 'change'),
   fromEvent(assets, 'unlink'),
-  fromEvent(handlebars, 'change'),
+  fromEvent(templates, 'change'),
 )
   .pipe(
     debounceTime(200),
@@ -111,6 +111,18 @@ let buildAssetsSub = merge(
         event,
         buildData,
       })),
+    ),
+    switchMap((event) =>
+      of('health check').pipe(
+        switchMap(() => fetch(HEALTHCHECK_URL)),
+        map((res) => {
+          if (!res.ok) {
+            throw new Error('backend is not ready');
+          }
+          return event;
+        }),
+        retry({ delay: 250 }),
+      ),
     ),
     tap((data) => postLiveReloadEvent(data)),
     retryWhen((errors) =>
@@ -127,6 +139,6 @@ process.on('exit', () => {
   buildAssetsSub.unsubscribe();
   cargo?.kill();
   back.close();
-  handlebars.close();
+  templates.close();
   assets.close();
 });
