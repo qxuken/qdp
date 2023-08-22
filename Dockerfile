@@ -18,7 +18,7 @@ WORKDIR /app
 COPY . .
 COPY --from=frontend-builder /app/dist ./dist
 
-RUN cargo install --path .
+RUN cargo build --release --locked
 
 # ---
 
@@ -31,8 +31,8 @@ ENV APPLICATION_FRONTEND_PATH=/frontend/
 ENV APPLICATION_HOST=0.0.0.0
 ENV APPLICATION_PORT=8080
 
-COPY --from=backend-builder /usr/local/cargo/bin/qdp /backend/qdp
+COPY --from=backend-builder /app/target/release/web /backend/web
 
 EXPOSE 8080
 
-CMD ["/backend/qdp"]
+CMD ["/backend/web"]

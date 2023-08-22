@@ -1,4 +1,23 @@
+# build output
+dist
 target
-/**/node_modules
+.tmp
+
+# generated cache
+tsconfig.tsbuildinfo
+
+# dependencies
+node_modules/
+
+# logs
 /**/*.log
+
+# environment variables
+.env
+.env.production
+
+# macOS-specific files
+.DS_Store
+
+# database
 *.db
