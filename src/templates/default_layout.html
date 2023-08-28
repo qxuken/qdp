@@ -1,42 +1,43 @@
 <!doctype html>
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="shortcut icon" href="/favicon.svg" type="image/x-icon" />
 
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="shortcut icon" href="/favicon.svg" type="image/x-icon" />
-  <title>{{title}}</title>
+    <title>{{title}}</title>
 
-  {% block head %}{% endblock %}
+    <!-- global scripts -->
+    {{ global_scripts }}
 
-  {{ global_scripts }}
+    <!-- stylesheets -->
+    {{ stylesheets }}
 
-  {{ stylesheets }}
-</head>
+    <!-- head block -->
+    {% block head %}{% endblock %}
+  </head>
 
-<body class="bg-black px-4 pt-2 pb-1 flex flex-col gap-4 min-h-screen">
-  {% block header %}
-    <header class='w-full text-right'>
-      <h1 class='text-3xl text-white'>{{title}}</h1>
+  <body class="bg-black px-4 pt-2 pb-1 flex flex-col gap-4 min-h-screen" hx-boost="true">
+    {% block header %}
+    <header class="w-full text-right">
+      <h1 class="text-3xl text-white">{{title}}</h1>
     </header>
-  {% endblock %}
+    {% endblock %}
 
-  <main class="flex-grow">
-    {% block content %}<p class="text-black">No content</p>{% endblock %}
-  </main>
+    <main class="flex-grow">
+      {% block content %}
+      <p class="text-black">No content</p>
+      {% endblock %}
+    </main>
 
-  {% block footer %}
-    <footer class='w-full flex gap-8'>
-      <div class='py-2 border-t-4 border-emerald-500 text-emerald-500'>
-        System is OK
-      </div>
-      <div class='flex-grow py-2 border-t-4 border-gray-500 text-gray-500'>
-
-      </div>
+    {% block footer %}
+    <footer class="w-full flex gap-8">
+      <div class="py-2 border-t-4 border-emerald-500 text-emerald-500">System is OK</div>
+      <div class="flex-grow py-2 border-t-4 border-gray-500 text-gray-500"></div>
     </footer>
-  {% endblock %}
+    {% endblock %}
 
-  {% block local_scripts %}{% endblock %}
-</body>
-
+    <!-- local scripts -->
+    {{local_scripts}}
+  </body>
 </html>
