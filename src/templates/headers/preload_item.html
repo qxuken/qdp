@@ -1,0 +1,3 @@
+{%- for item in items -%}
+    <link rel="preload" href="{{item.absolute_url()}}" as="{{item.attr_as()}}" {% if item.attr_type.is_some() -%} type="{{item.attr_type()}}" {%- endif %} {% if item.attr_as() == "font" -%} crossorigin {%- endif %}/>
+{% endfor -%}

@@ -7,12 +7,12 @@ edition = "2021"
 [dependencies]
 tokio = { version = "1.29.1", features = ["full"] }
 dotenv = { version = "0.15.0" }
-axum = { version = "0.6.20", features = ["headers"] }
+axum = { version = "0.6.20", features = ["headers", "query", "form"] }
 axum-macros = { version = "0.3.8" }
 env_logger = { version = "0.10.0" }
 hex = { version = "0.4.3" }
 log = { version = "0.4.19" }
-rust-embed = { version = "6.8.1", features = [
+rust-embed = { version = "8.0.0", features = [
   "include-exclude",
   "compression",
   "mime-guess",

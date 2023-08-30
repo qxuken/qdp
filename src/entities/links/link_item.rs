@@ -9,14 +9,12 @@ use crate::{error::EntityError, result::Result, schema};
 #[derive(
     Debug, Clone, Serialize, Deserialize, Queryable, Selectable, Identifiable, Associations,
 )]
-#[serde(rename_all = "camelCase")]
 #[diesel(belongs_to(LinkSection))]
 #[diesel(table_name = schema::link_item)]
 #[diesel(check_for_backend(Sqlite))]
 pub struct LinkItem {
     pub id: i32,
     pub title: String,
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<String>,
     pub link: String,
     pub order_number: i32,
@@ -25,7 +23,6 @@ pub struct LinkItem {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, Insertable)]
-#[serde(rename_all = "camelCase")]
 #[diesel(table_name = schema::link_item)]
 #[diesel(check_for_backend(Sqlite))]
 pub struct NewLinkItem {
@@ -37,7 +34,6 @@ pub struct NewLinkItem {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, AsChangeset, PartialEq)]
-#[serde(rename_all = "camelCase")]
 #[diesel(belongs_to(LinkSection))]
 #[diesel(table_name = schema::link_item)]
 #[diesel(check_for_backend(Sqlite))]

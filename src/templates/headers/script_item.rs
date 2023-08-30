@@ -1,4 +1,4 @@
-use crate::frontend::ASSETS_PREFIX;
+use crate::assets::ASSETS_PREFIX;
 use askama::Template;
 
 #[derive(Debug, Clone)]
@@ -39,7 +39,7 @@ impl ScriptItem {
 }
 
 #[derive(Template, Debug, Clone, Default)]
-#[template(path = "frontend/templates/script_item.html", escape = "none")]
+#[template(path = "headers/script_item.html", escape = "none")]
 pub struct ScriptItemsTemplate {
     items: Vec<ScriptItem>,
 }

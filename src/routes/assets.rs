@@ -1,4 +1,4 @@
-use crate::{frontend::Assets, SharedAppState};
+use crate::{assets::Assets, SharedAppState};
 use axum::{
     extract::{Path, State},
     http::{
@@ -10,7 +10,6 @@ use axum::{
     response::{IntoResponse, Response},
 };
 
-#[axum_macros::debug_handler]
 pub async fn assets_route(
     headers: HeaderMap,
     Path(path): Path<String>,
@@ -59,6 +58,15 @@ pub async fn assets_route(
             }
             headers.insert(CONTENT_TYPE, mime.parse().unwrap());
             (headers, content.data).into_response()
+        }
+        None => (StatusCode::NOT_FOUND, "404 Not Found").into_response(),
+    }
+}
+
+pub async fn favicon_route() -> Response {
+    match Assets::get("favicon.svg") {
+        Some(content) => {
+            ([(CONTENT_TYPE, content.metadata.mimetype())], content.data).into_response()
         }
         None => (StatusCode::NOT_FOUND, "404 Not Found").into_response(),
     }

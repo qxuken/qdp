@@ -6,7 +6,6 @@ use diesel::prelude::*;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct LinksView {
-    #[serde(flatten)]
     pub section: LinkSection,
     pub items: Vec<LinkItem>,
 }

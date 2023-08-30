@@ -1,3 +1,14 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer utilities {
+  .show-on-siblings-focus {
+    @apply transition-opacity opacity-0;
+  }
+  .show-on-siblings-focus:has(+ *:hover, + *:focus-within),
+  *:hover + .show-on-siblings-focus,
+  *:focus-within + .show-on-siblings-focus {
+    @apply opacity-100;
+  }
+}

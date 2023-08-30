@@ -6,7 +6,6 @@ use diesel::sqlite::Sqlite;
 use crate::{error::EntityError, result::Result, schema};
 
 #[derive(Debug, Clone, Serialize, Deserialize, Queryable, Identifiable, Selectable)]
-#[serde(rename_all = "camelCase")]
 #[diesel(table_name = schema::link_section)]
 #[diesel(check_for_backend(Sqlite))]
 pub struct LinkSection {
@@ -15,8 +14,7 @@ pub struct LinkSection {
     pub order_number: i32,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, Insertable)]
-#[serde(rename_all = "camelCase")]
+#[derive(Debug, Default, Clone, Serialize, Deserialize, Insertable)]
 #[diesel(table_name = schema::link_section)]
 #[diesel(check_for_backend(Sqlite))]
 pub struct NewLinkSection {
@@ -25,7 +23,6 @@ pub struct NewLinkSection {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, AsChangeset, PartialEq)]
-#[serde(rename_all = "camelCase")]
 #[diesel(table_name = schema::link_section)]
 #[diesel(check_for_backend(Sqlite))]
 pub struct UpdateLinkSection {

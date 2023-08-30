@@ -1,0 +1,43 @@
+<div class="flex flex-wrap gap-8" hx-get="/links" hx-trigger="links-updated">
+  {% for link in links %}
+    <form action="/links/section" method="post" class="pt-6 hover:opacity-100 focus-within:opacity-100 show-on-siblings-focus">
+      <input type="hidden" name="order_number" value="{{link.section.order_number}}" />
+      <input type="submit" class="text-white cursor-pointer" value="+" />
+    </form>
+    <div id="section-{{link.section.order_number}}" class="pt-4 peer/{{link.section.order_number}}">
+      <div class="h-10 flex gap-1 items-end group">
+        <span class="text-slate-900">{{link.section.order_number}}:</span>
+        <input
+          class="text-3xl text-white bg-transparent peer"
+          name="title"
+          hx-patch="/links/section/{{link.section.id}}"
+          hx-trigger="keyup delay:350ms changed"
+          hx-swap="none"
+          required
+          value="{{ link.section.title }}"
+        />
+        <div class="self-center p-1 scale-0 group-hover:scale-100 peer-focus:scale-100 focus-within:scale-100 transition-transform">
+          <button
+            class="text-red-900 font-bold"
+            hx-delete="/links/section/{{link.section.id}}"
+            hx-swap="none"
+            hx-confirm="Are you sure?"
+          >
+            x
+          </button>
+        </div>
+      </div>
+      <div class="py-4 flex flex-col gap-4">
+        {% for item in link.items %}
+          {% include "links/item_info.html" %}
+        {% endfor %}
+      </div>
+    </div>
+    {% if loop.last %}
+      <form action="/links/section" method="post" class="pt-6 hover:opacity-100 focus-within:opacity-100 show-on-siblings-focus">
+        <input type="hidden" name="order_number" value="{{link.section.order_number + 1}}" />
+        <input type="submit" class="text-white cursor-pointer" value="+" />
+      </form>
+    {% endif %}
+  {% endfor %}
+</div>
