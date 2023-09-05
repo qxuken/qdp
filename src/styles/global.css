@@ -12,3 +12,11 @@
     @apply opacity-100;
   }
 }
+
+.htmx-indicator {
+  @apply opacity-0 transition-opacity;
+}
+
+.htmx-request {
+  @apply opacity-100;
+}

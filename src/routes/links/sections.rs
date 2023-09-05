@@ -1,12 +1,11 @@
 use crate::{
-    entities::links::{LinkSection, NewLinkSection, UpdateLinkSection},
+    entities::links::{LinkSection, LinksView, NewLinkSection, UpdateLinkSection},
     result::Result,
+    templates::links::{LinksTemplate, SectionTitle},
     SharedAppState,
 };
 use axum::{
     extract::{Path, State},
-    http::{HeaderMap, StatusCode},
-    response::Redirect,
     routing::{patch, post},
     Form, Router,
 };
@@ -21,7 +20,7 @@ pub struct CreateSectionForm {
 pub async fn create_link_section_route(
     State(app_state): State<SharedAppState>,
     Form(create_section_query): Form<CreateSectionForm>,
-) -> Result<Redirect> {
+) -> Result<LinksTemplate> {
     let mut conn = app_state.db.get_connection()?;
 
     let new_section = NewLinkSection {
@@ -32,37 +31,38 @@ pub async fn create_link_section_route(
     };
     LinkSection::create(&mut conn, new_section)?;
 
-    Ok(Redirect::to("/"))
+    let links = LinksView::query(&mut conn)?;
+
+    Ok(links.into())
 }
 
 pub async fn update_link_section_title_route(
     State(app_state): State<SharedAppState>,
     Path(section_id): Path<i32>,
     Form(update_section_title_form): Form<UpdateLinkSection>,
-) -> Result<StatusCode> {
+) -> Result<SectionTitle> {
+    // tokio::time::sleep(std::time::Duration::from_millis(1_000)).await;
     let mut conn = app_state.db.get_connection()?;
 
-    LinkSection::find_by_id(&mut conn, &section_id)?
+    let section = LinkSection::find_by_id(&mut conn, &section_id)?
         .update(&mut conn, &update_section_title_form)?;
 
-    Ok(StatusCode::OK)
+    Ok(section.into())
 }
 
 pub async fn delete_link_section_route(
     State(app_state): State<SharedAppState>,
     Path(section_id): Path<i32>,
-) -> Result<(HeaderMap, StatusCode)> {
+) -> Result<LinksTemplate> {
     let mut conn = app_state.db.get_connection()?;
 
     let section = LinkSection::find_by_id(&mut conn, &section_id)?;
 
     section.delete(&mut conn)?;
 
-    let mut headers = HeaderMap::with_capacity(1);
+    let links = LinksView::query(&mut conn)?;
 
-    headers.append("HX-Trigger", "links-updated".parse().unwrap());
-
-    Ok((headers, StatusCode::OK))
+    Ok(links.into())
 }
 
 pub fn create_router() -> Router<SharedAppState> {

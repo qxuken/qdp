@@ -10,7 +10,7 @@ pub async fn links_route(State(app_state): State<SharedAppState>) -> Result<Link
 
     let links = LinksView::query(&mut conn)?;
 
-    Ok(LinksTemplate::from(links))
+    Ok(links.into())
 }
 
 pub fn create_router() -> Router<SharedAppState> {

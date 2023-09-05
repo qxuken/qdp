@@ -1,0 +1,23 @@
+{% let len = section_title.len() %}
+
+{% let size -%}
+{% if len > 9 -%}
+  {% let size = len - 3 -%}
+{% else -%}
+  {% let size = 6 -%}
+{% endif -%}
+<input
+  id="section-{{section_id}}-title"
+  class="text-3xl text-white bg-transparent"
+  name="title"
+  hx-patch="/links/section/{{section_id}}"
+  hx-trigger="input delay:650ms changed"
+  hx-swap="outerHTML"
+  hx-ext="disable-input"
+  hx-target="this"
+  hx-indicator="#section-{{section_id}}-indicator"
+  size="{{ size }}"
+  required
+  value="{{ section_title }}"
+  _="on every input set @size to Math.max(my.value.length - 3, 6)"
+/>
