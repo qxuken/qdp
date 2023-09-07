@@ -8,11 +8,13 @@
     "lint:fix": "eslint src --fix"
   },
   "dependencies": {
+    "alpinejs": "^3.13.0",
     "htmx.org": "1.9.4",
     "rxjs": "7.8.1",
     "zod": "3.21.4"
   },
   "devDependencies": {
+    "@types/alpinejs": "^3.7.2",
     "@types/node": "^20.5.0",
     "@typescript-eslint/eslint-plugin": "^6.3.0",
     "@typescript-eslint/parser": "^6.3.0",

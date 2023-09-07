@@ -31,9 +31,10 @@ export function build(define = {}) {
 
   let rootDir = cwd();
 
-  let entryPoints = [path.join(SRC_PATH, 'lib.ts'), path.join(SRC_PATH, 'utils', 'liveReload.ts')].concat(
-    searchModules(rootDir, SRC_PATH),
-  );
+  let entryPoints = [
+    path.join(SRC_PATH, 'lib.ts'),
+    path.join(SRC_PATH, 'liveReload.ts'),
+  ].concat(searchModules(rootDir, SRC_PATH));
 
   return esbuild.build({
     logLevel: 'info',

@@ -13,11 +13,12 @@
   hx-patch="/links/section/{{section_id}}"
   hx-trigger="input delay:650ms changed"
   hx-swap="outerHTML"
-  hx-ext="disable-input"
   hx-target="this"
   hx-indicator="#section-{{section_id}}-indicator"
-  size="{{ size }}"
-  required
+  hx-ext="disable-input"
   value="{{ section_title }}"
-  _="on every input set @size to Math.max(my.value.length - 3, 6)"
+  size="{{ size }}"
+  data-sync-input-size
+  data-sync-input-size-min="6"
+  data-sync-input-size-modification="-3"
 />

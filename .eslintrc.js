@@ -14,9 +14,11 @@ module.exports = {
   parserOptions: {
     project: true,
   },
+
   plugins: ['@typescript-eslint', 'prettier'],
   rules: {
     'prefer-const': 'off',
     '@typescript-eslint/consistent-type-imports': 'error',
+    '@typescript-eslint/array-type': ['error', 'generic'],
   },
 };

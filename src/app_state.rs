@@ -21,14 +21,11 @@ pub type SharedAppState = Arc<AppState>;
 
 impl AppState {
     pub fn new(db: Database, is_dev: bool) -> Self {
-        let mut global_scripts = vec![
-            ScriptItem::async_module("/lib.js"),
-            ScriptItem::async_module("/hyperscript.org@0.9.11.min.js"),
-        ];
+        let mut global_scripts = vec![ScriptItem::async_module("/lib.js")];
         let mut global_head = String::new();
 
         if is_dev {
-            global_scripts.push(ScriptItem::async_module("/utils/liveReload.js"));
+            global_scripts.push(ScriptItem::async_module("/liveReload.js"));
         }
 
         let global_scripts_string = ScriptItemsTemplate::from(global_scripts).render().unwrap();

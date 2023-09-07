@@ -1,1 +1,2 @@
-export * from './ajax';
+export * from './isHTMLElement';
+export * from './isHTMLInputElement';
