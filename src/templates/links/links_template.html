@@ -2,7 +2,7 @@
   {% for link in links %}
     {% let section_id = link.section.id %}
     {% let section_title = link.section.title.clone() %}
-    <div id="section-{{link.section.order_number}}" class="relative group">
+    <div id="section-{{section_id}}" class="relative group">
       <form hx-post="/links/section" hx-target="#links" hx-swap="outerHTML" class="absolute top-2 w-8 -left-8 opacity-0 group-hover:opacity-100  group-focus-within:opacity-100">
         <input type="hidden" name="order_number" value="{{link.section.order_number}}" />
         <input type="submit" class="text-white cursor-pointer text-base leading-1" value="+" />
