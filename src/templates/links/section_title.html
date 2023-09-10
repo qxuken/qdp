@@ -1,8 +1,8 @@
 {% let len = section_title.len() %}
 
 {% let size -%}
-{% if len > 9 -%}
-  {% let size = len - 3 -%}
+{% if len > 6 %}
+  {% let size = len -%}
 {% else -%}
   {% let size = 6 -%}
 {% endif -%}
@@ -20,5 +20,4 @@
   size="{{ size }}"
   data-sync-input-size
   data-sync-input-size-min="6"
-  data-sync-input-size-modification="-3"
 />
