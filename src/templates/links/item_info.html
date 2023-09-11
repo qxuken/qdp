@@ -1,10 +1,31 @@
-<a href="{{item.link}}" aria-label="{{item.title}}" target="_blank" class="group/link block text-white hover:text-zinc-300">
-  <h4 class="text-xl before:content-['->'] motion-safe:group-hover/link:before:content-['-->'] before:mr-1">
-    {{item.title }}
-  </h4>
-  {% match item.description %}
-    {% when Some with (description) %}
-      <p class="mt-2 text-gray-500">{{description }}</p>
-    {% when None %}
-  {% endmatch %}
-</a>
+<div id="section-{{section_id}}-items" class="py-4 flex flex-col gap-4">
+  {% for item in items %}
+    {% let order_number = item.order_number %}
+    {% include "links/item_form.html" %}
+
+    <a
+      href="{{item.link}}"
+      aria-label="{{item.title}}"
+      target="_blank"
+      class="group/link block text-white hover:text-zinc-300"
+    >
+      <h4
+        class="text-xl before:content-['->'] motion-safe:group-hover/link:before:content-['-->'] before:mr-1"
+      >
+        {{item.title }}
+      </h4>
+      {% match item.description %}
+        {% when Some with (description) %}
+          <p class="mt-2 text-gray-500">{{description }}</p>
+        {% when None %}
+      {% endmatch %}
+    </a>
+
+    {% if loop.last %}
+      {% let order_number = item.order_number + 1 %}
+      {% include "links/item_form.html" %}
+    {% endif %}
+
+
+  {% endfor %}
+</div>

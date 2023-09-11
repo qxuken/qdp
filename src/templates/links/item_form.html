@@ -1,0 +1,17 @@
+<form hx-post="/links/section/{{section_id}}/item" class="flex flex-col fle text-white">
+  <input type="hidden" name="order_number" value="{{order_number}}">
+  <fieldset>
+    <label for="Title">Title:</label>
+    <input class="bg-transparent" type="text" name="title" value="Item" required>
+  </fieldset>
+  <fieldset>
+    <label for="link">Url:</label>
+    <input class="bg-transparent" type="text" name="link" value="ht-
+    placeholder="Url" required>
+  </fieldset>
+  <fieldset>
+    <label for="description">Short description:</label>
+    <input class="bg-transparent" type="text" name="description" placeholder="Short description">
+  </fieldset>
+  <input type="submit" value="Create">
+</form>
