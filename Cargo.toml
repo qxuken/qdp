@@ -5,19 +5,19 @@ edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [dependencies]
-tokio = { version = "1.29.1", features = ["full"] }
+tokio = { version = "1.32.0", features = ["full"] }
 dotenv = { version = "0.15.0" }
 axum = { version = "0.6.20", features = ["headers", "query", "form"] }
 axum-macros = { version = "0.3.8" }
 env_logger = { version = "0.10.0" }
 hex = { version = "0.4.3" }
-log = { version = "0.4.19" }
+log = { version = "0.4.20" }
 rust-embed = { version = "8.0.0", features = [
   "include-exclude",
   "compression",
   "mime-guess",
 ] }
-diesel = { version = "2.1.0", features = [
+diesel = { version = "2.1.1", features = [
   "sqlite",
   "r2d2",
   "returning_clauses_for_sqlite_3_35",
@@ -25,20 +25,20 @@ diesel = { version = "2.1.0", features = [
 r2d2 = { version = "0.8.10" }
 diesel_migrations = { version = "2.1.0" }
 libsqlite3-sys = { version = "0.26.0", features = ["bundled"] }
-serde = { version = "1.0.165", features = ["derive"] }
-serde_json = { version = "1.0.99" }
+serde = { version = "1.0.188", features = ["derive"] }
+serde_json = { version = "1.0.106" }
 askama = { version = "0.12.0", features = [
   "serde",
   "serde_json",
   "mime",
   "mime_guess",
 ] }
-tower-http = { version = "0.4.3", features = [
+tower-http = { version = "0.4.4", features = [
   "compression-gzip",
   "compression-deflate",
   "compression-br",
   "compression-zstd",
 ] }
-chrono = { version = "0.4.26", features = ["serde"] }
+chrono = { version = "0.4.30", features = ["serde"] }
 html-minifier = { version = "4.0.0" }
 once_cell = { version = "1.18.0" }
