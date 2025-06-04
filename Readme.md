@@ -1,4 +1,14 @@
-# Database setup
+# QDP
+
+A prototype for link organizing. Made to try implementing an application with HTMX. This project is currently archived.
+
+## Project Overview
+
+- __CURRENTLY ARCHIVED__
+- Link organization system prototype
+- HTMX learning and experimentation playground
+
+## Database setup
 
 powered by Diesel
 
